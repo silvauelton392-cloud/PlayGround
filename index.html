@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Thom Khali — Tier List Onmyoji Arena</title>
+<meta name="description" content="Thom Khali: tier list do Onmyoji Arena por rota, índice de classes, collabs e mains — tudo no navegador." />
+<meta name="theme-color" content="#0b0e1a" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
+<link rel="apple-touch-icon" href="icon-180.png" />
+<link rel="stylesheet" href="styles.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="bg-orb orb-1"></div>
+<div class="bg-orb orb-2"></div>
+<div class="bg-orb orb-3"></div>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="logo">🏆</div>
+    <div>
+      <h1>Thom Khali</h1>
+      <p>Tier List · Onmyoji Arena</p>
+    </div>
+  </div>
+  <div class="top-actions">
+    <a class="ghost-btn" style="text-decoration:none" href="thomkhali-standalone.html" download="thomkhali.html" title="Baixar app (arquivo único, funciona offline)">⬇ App</a>
+    <button id="themeBtn" class="ghost-btn" title="Alternar tema">🌙</button>
+  </div>
+</header>
+
+
+<main>
+  <!-- ============ TIER LIST ONMYOJI ARENA ============ -->
+  <section id="tab-tier" class="panel active" role="tabpanel">
+    <div class="card">
+      <h2>Tier List — Onmyoji Arena <span class="pill">v3.333 · set/2026</span></h2>
+      <p class="hint">Meta compilado de guias atualizados (Pocket Gamer, TOPUPlive). Filtre por rota, busque e toque num shikigami para marcar seus <b>mains ⭐</b> (salvos no navegador). Meta muda por patch — use como guia, não como regra.</p>
+      <div class="row gap wrap">
+        <button id="oaViewTiers" class="primary">🏆 Tiers por rota</button>
+        <button id="oaViewCodex" class="secondary">📚 Índice por classe</button>
+      </div>
+      <div id="oaTiersView">
+      <div class="chips" id="laneChips">
+        <button class="chip lane active" data-lane="all">🌐 Todas</button>
+        <button class="chip lane" data-lane="top">⚔️ Top</button>
+        <button class="chip lane" data-lane="jungle">🌿 Jungle</button>
+        <button class="chip lane" data-lane="mid">🔮 Mid</button>
+        <button class="chip lane" data-lane="marksman">🏹 Marksman</button>
+        <button class="chip lane" data-lane="support">💚 Support</button>
+        <button class="chip lane" data-lane="mains">⭐ Mains</button>
+      </div>
+      <label class="field-label" for="oaSearch">Buscar shikigami</label>
+      <input id="oaSearch" type="text" placeholder="Ex.: Yoto, Kani, Momo…" autocomplete="off" />
+      <h3>🏆 Top 10 do meta</h3>
+      <div id="oaTop10" class="chips"></div>
+      <div id="oaTiers"></div>
+      <p class="muted">Fonte: Pocket Gamer (17/set/2026, v3.333), cruzado com TOPUPlive e ranking JP set/2026. No elo baixo, domínio do shikigami vale mais que tier. 🎮</p>
+      </div><!-- /oaTiersView -->
+      <div id="oaCodexView" style="display:none">
+        <h3>📊 O jogo em números</h3>
+        <div class="chips" id="oaStats"></div>
+        <h3>🎭 Classes <span class="muted">(toque para ver destaques)</span></h3>
+        <div class="chips" id="oaClassChips"></div>
+        <div id="oaClassDetail"></div>
+        <h3>🌙 Collabs <span class="muted">(16 no total)</span></h3>
+        <div id="oaCollabs"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <p><b>Thom Khali</b> · tier list e códex de Onmyoji Arena · dados de guias e fã-sites 🎮</p>
+  <p class="muted">Meta v3.333 (set/2026) — pode mudar a cada patch do jogo.</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
