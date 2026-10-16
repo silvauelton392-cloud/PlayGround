@@ -152,6 +152,12 @@ body{margin:0;font-family:var(--font);background:#04050c;color:var(--txt);overfl
 /* Chat pedir música */
 .chat-fab{position:absolute;right:16px;bottom:158px;z-index:25;width:56px;height:56px;border-radius:50%;border:0;background:linear-gradient(135deg,#25d366,#128c7e);font-size:25px;cursor:pointer;box-shadow:0 10px 28px rgba(37,211,102,.45)}
 .chat-fab:active{transform:scale(.92)}
+#chat-badge{position:absolute;top:-4px;right:-4px;min-width:22px;height:22px;border-radius:12px;background:#ef4444;color:#fff;font:800 12px var(--font);display:grid;place-items:center;padding:0 5px;border:2px solid var(--bg)}
+#chat-badge[hidden]{display:none!important}
+.live-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#25d366;margin-right:4px}
+.live-dot.off{background:#64748b}
+.bubble .who{display:block;font-size:10px;font-weight:800;opacity:.85;margin-bottom:2px}
+.typing-bubble{align-self:flex-start;background:var(--card2);border-radius:16px;border-bottom-left-radius:5px;padding:10px 14px;font-size:13px;color:var(--mut)}
 #chat{position:absolute;inset:0;z-index:40;background:rgba(0,0,0,.45);display:flex;flex-direction:column;justify-content:flex-end;opacity:0;pointer-events:none;transition:opacity .25s}
 #chat.open{opacity:1;pointer-events:auto}
 .chat-inner{background:var(--bg);border:1px solid var(--border);border-bottom:0;border-radius:24px 24px 0 0;height:78%;display:flex;flex-direction:column;overflow:hidden;transform:translateY(30px);transition:transform .25s}

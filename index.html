@@ -186,7 +186,7 @@
   </nav>
 
   <!-- ===== CHAT PEDIR MÚSICA ===== -->
-  <button id="chat-fab" class="chat-fab" title="Pedir música">💬</button>
+  <button id="chat-fab" class="chat-fab" title="Pedir música">💬<span id="chat-badge" hidden></span></button>
   <div id="chat" aria-hidden="true">
     <div class="chat-inner">
       <div class="chat-head">
@@ -329,6 +329,7 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
 }
 </script>
 <script src="./catalog.js"></script>
+<script src="./mqtt.min.js"></script>
 <script src="./app.js"></script>
 </body>
 </html>

@@ -926,12 +926,12 @@ function renderChat() {
       return;
     }
     d.className = "bubble " + (m.mine ? "mine" : "theirs");
-    d.innerHTML = `${esc(m.text)}<small>${esc(m.time || "")}</small>`;
+    d.innerHTML = `${m.who ? `<span class="who">${esc(m.who)}</span>` : ""}${esc(m.text)}<small>${esc(m.time || "")}</small>`;
     box.appendChild(d);
   });
   box.querySelectorAll("[data-resend]").forEach((btn) => { btn.onclick = () => resendAudio(btn.dataset.resend); });
   box.querySelectorAll("[data-rejoin]").forEach((btn) => { btn.onclick = () => rejoinLive(btn.dataset.rejoin); });
-  if (!ownerMode) $("#chat-status").textContent = waNumber() ? "online · envia p/ WhatsApp" : "online";
+  if (!ownerMode) renderLiveStatus();
   box.scrollTop = box.scrollHeight;
 }
 function openChat() { renderChat(); $("#chat").classList.add("open"); setTimeout(() => { try { $("#chat-text").focus(); } catch {} }, 250); }
@@ -946,17 +946,35 @@ function sendRequest() {
   const inp = $("#chat-text");
   const text = inp.value.trim();
   if (!text) return;
-  chatPush(`🎵 Pedido: ${text}`);
   inp.value = "";
-  let num = waNumber();
-  if (!num) { chat.wa = DEFAULT_WA; chatStore.save(chat); renderChat(); num = DEFAULT_WA; }
-  window.open(`https://wa.me/${num}?text=${encodeURIComponent("🎵 Pedido Thom Songs\n🎶 " + text)}`, "_blank");
-  chatPush("✅ Pedido enviado! Valeu! 🙌", false);
+  hideTyping();
+  const msg = { id: liveId + "-" + Date.now(), from: liveId, role: liveRole(), name: liveName(), text, ts: Date.now() };
+  if (live.on && liveSend("chat", msg)) {
+    liveSeen.add(msg.id);
+    pushTextMsg(msg, true);
+  } else {
+    // sem ao-vivo: pedido via WhatsApp (fluxo clássico)
+    chatPush(`🎵 Pedido: ${text}`);
+    let num = waNumber();
+    if (!num) { chat.wa = DEFAULT_WA; chatStore.save(chat); renderChat(); num = DEFAULT_WA; }
+    window.open(`https://wa.me/${num}?text=${encodeURIComponent("🎵 Pedido Thom Songs\n🎶 " + text)}`, "_blank");
+    chatPush("✅ Pedido enviado! Valeu! 🙌", false);
+  }
 }
+function pushTextMsg(m, mine) {
+  const d = new Date(m.ts || Date.now());
+  const hh = String(d.getHours()).padStart(2, "0"), mm = String(d.getMinutes()).padStart(2, "0");
+  chat.msgs.push({ mid: m.id, who: m.name, role: m.role, text: m.text, mine, time: `${hh}:${mm}` });
+  chat.msgs = chat.msgs.slice(-100);
+  chatStore.save(chat); renderChat();
+}
+function openChat() { renderChat(); $("#chat").classList.add("open"); live.unread = 0; updateBadge(); liveConnect(); setTimeout(() => { try { $("#chat-text").focus(); } catch {} }, 250); }
+function closeChat() { $("#chat").classList.remove("open"); }
 $("#chat-fab").onclick = openChat;
 $("#btn-chat-close").onclick = closeChat;
 $("#btn-chat-send").onclick = sendRequest;
 $("#chat-text").addEventListener("keydown", (e) => { if (e.key === "Enter") sendRequest(); });
+$("#chat-text").addEventListener("input", () => { hideTyping(); clearTimeout(live.typingTimer); live.typingTimer = setTimeout(() => { if (live.on) liveSend("typing", { id: liveId, role: liveRole() }); }, 800); });
 $("#btn-chat-current").onclick = () => {
   const t = curTrack();
   if (t) $("#chat-text").value = `${t.artist} - ${t.title}`;
@@ -983,7 +1001,7 @@ function ownerToggle() {
   if (v == null) return;
   if (v === has) ownerMode = true;
   else return toast("PIN incorreto 🚫");
-  refreshOwnerUI(); toast("Modo dono ativo 👑 — só você envia áudio");
+  refreshOwnerUI(); try { liveHello(); } catch {} toast("Modo dono ativo 👑 — só você envia áudio");
 }
 (() => {
   const title = document.querySelector(".chat-title");
@@ -1111,6 +1129,109 @@ function openLiveRoom(url) {
 }
 $("#btn-chat-live").onclick = startLiveTalk;
 
+// ---------- chat ao vivo: texto em tempo real (MQTT, sem conta) ----------
+const LIVE_BROKERS = [
+  { host: "broker.emqx.io", port: 8084, path: "/mqtt", ssl: true },
+  { host: "test.mosquitto.org", port: 8081, path: "/", ssl: true },
+];
+const live = { client: null, on: false, timer: null, hb: null, roster: {}, typingTimer: null, typingEl: null, unread: 0 };
+const liveId = "c" + Math.random().toString(36).slice(2, 10);
+const liveSeen = new Set();
+function liveRoom() { return "thomsongs/v1/" + (typeof DEFAULT_WA !== "undefined" && DEFAULT_WA ? DEFAULT_WA : "chat"); }
+function liveRole() { return ownerMode ? "dono" : "cliente"; }
+function liveName() { return ownerMode ? "Dono 👑" : "Cliente"; }
+function liveConnect() {
+  if (live.client || typeof Paho === "undefined") return;
+  liveTry(0);
+}
+function liveTry(i) {
+  if (i >= LIVE_BROKERS.length) { renderLiveStatus(); live.timer = setTimeout(() => liveTry(0), 30000); return; }
+  const b = LIVE_BROKERS[i];
+  let c = null;
+  try {
+    c = new Paho.Client(b.host, Number(b.port), b.path, liveId + "-" + String(Date.now() % 100000));
+  } catch { live.timer = setTimeout(() => liveTry(i + 1), 1500); return; }
+  c.onConnectionLost = () => { live.on = false; if (live.client === c) live.client = null; renderLiveStatus(); clearTimeout(live.timer); live.timer = setTimeout(() => liveTry(0), 10000); };
+  c.onMessageArrived = liveOnMsg;
+  try {
+    c.connect({ useSSL: b.ssl, timeout: 8, keepAliveInterval: 30, cleanSession: true,
+      onSuccess: () => {
+        live.client = c; live.on = true; renderLiveStatus();
+        try { c.subscribe(liveRoom() + "/chat"); c.subscribe(liveRoom() + "/typing"); c.subscribe(liveRoom() + "/presence"); } catch {}
+        liveHello();
+        clearInterval(live.hb); live.hb = setInterval(liveHello, 25000);
+      },
+      onFailure: () => { try { c.disconnect(); } catch {} clearTimeout(live.timer); live.timer = setTimeout(() => liveTry(i + 1), 1500); }
+    });
+  } catch { clearTimeout(live.timer); live.timer = setTimeout(() => liveTry(i + 1), 1500); }
+}
+function liveSend(kind, obj) {
+  if (!live.on || !live.client) return false;
+  try {
+    const m = new Paho.Message(JSON.stringify(obj));
+    m.destinationName = liveRoom() + "/" + kind;
+    live.client.send(m); return true;
+  } catch { return false; }
+}
+function liveHello() { liveSend("presence", { id: liveId, role: liveRole(), ts: Date.now() }); if (ownerMode) renderLiveStatus(); }
+function pruneRoster() { const now = Date.now(); Object.keys(live.roster).forEach((k) => { if (now - live.roster[k].ts > 75000) delete live.roster[k]; }); }
+function liveOnMsg(m) {
+  let d = null;
+  try { d = JSON.parse(m.payloadString); } catch { return; }
+  const topic = m.destinationName || "";
+  if (topic.endsWith("/presence")) {
+    if (d.id && d.id !== liveId) { live.roster[d.id] = { role: d.role, ts: Date.now() }; pruneRoster(); renderLiveStatus(); }
+    return;
+  }
+  if (topic.endsWith("/typing")) {
+    if (d.id && d.id !== liveId) showTyping(d.role);
+    return;
+  }
+  if (d.id && d.id !== liveId && d.text) {
+    if (liveSeen.has(d.id)) return; liveSeen.add(d.id);
+    live.roster[d.id] = { role: d.role, ts: Date.now() }; pruneRoster();
+    pushIncoming(d);
+  }
+}
+function pushIncoming(d) {
+  const t = new Date(d.ts || Date.now());
+  const hh = String(t.getHours()).padStart(2, "0"), mm = String(t.getMinutes()).padStart(2, "0");
+  chat.msgs.push({ mid: d.id, who: d.name || (d.role === "dono" ? "Dono 👑" : "Cliente"), role: d.role, text: String(d.text).slice(0, 140), mine: false, time: `${hh}:${mm}` });
+  chat.msgs = chat.msgs.slice(-100);
+  chatStore.save(chat);
+  if ($("#chat").classList.contains("open")) renderChat();
+  else { live.unread++; updateBadge(); }
+  renderLiveStatus();
+}
+function updateBadge() {
+  const b = $("#chat-badge"); if (!b) return;
+  b.hidden = !(live.unread > 0);
+  b.textContent = live.unread > 9 ? "9+" : String(live.unread);
+}
+function renderLiveStatus() {
+  const el = $("#chat-status"); if (!el) return;
+  if (ownerMode) { el.innerHTML = `modo dono 👑 · ${live.on ? "ao vivo 🟢" : "conectando…"} · só você envia áudio`; return; }
+  if (!live.on) { el.innerHTML = `<span class="live-dot off"></span>conectando…`; return; }
+  pruneRoster();
+  const others = Object.keys(live.roster);
+  const dono = others.some((k) => live.roster[k].role === "dono");
+  el.innerHTML = `<span class="live-dot"></span>ao vivo · ${dono ? "dono online 🟢" : others.length ? others.length + " online" : "só você"}`;
+}
+function showTyping(role) {
+  if (!$("#chat").classList.contains("open")) return;
+  const box = $("#chat-msgs"); if (!box) return;
+  if (!live.typingEl) {
+    const d = document.createElement("div");
+    d.className = "typing-bubble";
+    d.textContent = (role === "dono" ? "Dono" : "Cliente") + " digitando…";
+    box.appendChild(d); live.typingEl = d;
+    box.scrollTop = box.scrollHeight;
+  }
+  clearTimeout(live.typingTimer);
+  live.typingTimer = setTimeout(hideTyping, 2500);
+}
+function hideTyping() { try { if (live.typingEl) live.typingEl.remove(); } catch {} live.typingEl = null; }
+
 // ---------- atualização automática (APK) ----------
 const UPDATE_BASE = "https://raw.githubusercontent.com/silvauelton392-cloud/PlayGround/main/";
 let updateInfo = null, lastUpdateCheck = 0;
@@ -1199,6 +1320,7 @@ loadCB();
 loadPT();
 loadNV();
 setTimeout(() => checkUpdate(false), 9000);
+setTimeout(() => { try { liveConnect(); } catch {} }, 12000);
 setTimeout(() => { if (!updateInfo) checkUpdate(false); }, 60000);
 setTimeout(() => checkFreshUpdate(), 2500);
 (function checkDeviceAccess() {
