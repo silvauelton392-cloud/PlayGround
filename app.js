@@ -907,6 +907,12 @@ function renderChat() {
   box.appendChild(day);
   chat.msgs.slice(-50).forEach((m) => {
     const d = document.createElement("div");
+    if (m.live) {
+      d.className = "bubble mine";
+      d.innerHTML = `🎙️ Ao vivo: <strong>${esc(m.live)}</strong><br /><small>toque abaixo para entrar de novo</small><button class="mini-btn" data-rejoin="${esc(m.live)}">🎙️ Entrar na chamada</button><small>${esc(m.time || "")}</small>`;
+      box.appendChild(d);
+      return;
+    }
     if (m.audioId) {
       d.className = "bubble mine";
       const b = audioBlobs[m.audioId];
@@ -924,6 +930,7 @@ function renderChat() {
     box.appendChild(d);
   });
   box.querySelectorAll("[data-resend]").forEach((btn) => { btn.onclick = () => resendAudio(btn.dataset.resend); });
+  box.querySelectorAll("[data-rejoin]").forEach((btn) => { btn.onclick = () => rejoinLive(btn.dataset.rejoin); });
   if (!ownerMode) $("#chat-status").textContent = waNumber() ? "online · envia p/ WhatsApp" : "online";
   box.scrollTop = box.scrollHeight;
 }
@@ -963,8 +970,10 @@ const DEFAULT_OWNER_PIN = "Thom@12345"; // PIN do dono
 function ownerPin() { try { return localStorage.getItem("thom_owner_pin") || DEFAULT_OWNER_PIN; } catch { return DEFAULT_OWNER_PIN; } }
 function setOwnerPin(p) { try { localStorage.setItem("thom_owner_pin", p); } catch {} }
 function refreshOwnerUI() {
-  $("#btn-chat-mic").hidden = !ownerMode;
-  if (ownerMode) $("#chat-status").textContent = "modo dono 👑 · só você envia áudio";
+  const vis = ownerMode;
+  $("#btn-chat-mic").hidden = !vis;
+  $("#btn-chat-live").hidden = !vis;
+  if (vis) $("#chat-status").textContent = "modo dono 👑 · só você envia áudio";
   renderChat();
 }
 function ownerToggle() {
@@ -1060,6 +1069,47 @@ async function resendAudio(id) {
   await shareOrSaveAudio(blob, audioFileName());
 }
 $("#btn-chat-mic").onclick = toggleRec;
+
+// ---------- falar ao vivo (dono inicia, cliente entra pelo link) ----------
+function startLiveTalk() {
+  if (!ownerMode) return toast("Só o dono inicia ao vivo 👑");
+  const room = "ThomSongs-" + Math.random().toString(36).slice(2, 8);
+  const url = "https://meet.jit.si/" + room;
+  pushLiveMsg(room);
+  openLiveRoom(url);
+  setTimeout(() => shareLiveInvite(url), 600);
+}
+function pushLiveMsg(room) {
+  const now = new Date();
+  chat.msgs.push({ live: room, mine: true, time: `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}` });
+  chat.msgs = chat.msgs.slice(-100);
+  chatStore.save(chat); renderChat();
+}
+async function shareLiveInvite(url) {
+  const text = `🎙️ Thom Songs AO VIVO! Toque para falar comigo agora: ${url}`;
+  try {
+    if (navigator.share) { await navigator.share({ title: "Thom Songs ao vivo", text }); return; }
+  } catch {}
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(text);
+      toast("Link copiado — cole no WhatsApp do cliente 📋");
+      return;
+    }
+  } catch {}
+  window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
+}
+function rejoinLive(room) {
+  openLiveRoom("https://meet.jit.si/" + room);
+}
+function openLiveRoom(url) {
+  try {
+    if (window.AndroidDL && window.AndroidDL.openLive) { window.AndroidDL.openLive(url); return; }
+    if (window.AndroidApp && window.AndroidApp.openLive) { window.AndroidApp.openLive(url); return; }
+  } catch {}
+  window.open(url, "_blank");
+}
+$("#btn-chat-live").onclick = startLiveTalk;
 
 // ---------- atualização automática (APK) ----------
 const UPDATE_BASE = "https://raw.githubusercontent.com/silvauelton392-cloud/PlayGround/main/";

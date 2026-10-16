@@ -147,6 +147,16 @@ public class MainActivity extends Activity {
             public void saveAudio(String base64, String filename) {
                 runOnUiThread(() -> saveAudioFile(base64, filename));
             }
+            @JavascriptInterface
+            public void openLive(String url) {
+                runOnUiThread(() -> {
+                    try {
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+                    } catch (Exception e) {
+                        Toast.makeText(MainActivity.this, "Não foi possível abrir", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
         }, "AndroidDL");
 
         webView.setDownloadListener((url, userAgent, contentDisposition, mimeType, contentLength) ->
