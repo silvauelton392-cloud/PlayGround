@@ -23,11 +23,9 @@ const saved = store.load();
 
 let NX = null, nxAlbum = "", CB = null, cbAlbum = "", PT = null, ptAlbum = "";
 const isStream = (t) => t && (t.nx || t.cb || t.pitty);
-const ytSearch = (t) => `https://www.youtube.com/results?search_query=${encodeURIComponent(t.artist + " " + t.title)}`;
 const letraLink = (t) => (t.cb ? "https://www.letras.mus.br/charlie-brown-jr/" : t.pitty ? "https://www.letras.mus.br/pitty/" : "https://www.letras.mus.br/nx-zero/");
 let order = tracks.map((_, i) => i);
 let pos = 0;
-let explicitPlay = false;
 let view = "inicio", searchQ = "", sortBy = "padrao", activePlaylist = null;
 let shuffle = saved.shuffle || false;
 let repeat = saved.repeat || "all";
@@ -63,7 +61,7 @@ const coverCSS = (hue) => `linear-gradient(135deg,hsl(${hue} 80% 55%),hsl(${(hue
 const curTrackIdx = () => order[pos];
 const curTrack = () => tracks[curTrackIdx()];
 const normTitle = (s) => (s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, " ").trim();
-// Se o usuário tem o arquivo no aparelho, toca ele (senão abre no YouTube)
+// Se o usuário tem o arquivo no aparelho, toca ele
 function fullLocalFor(t) {
   if (!isStream(t)) return null;
   const nt = normTitle(t.title);
@@ -164,23 +162,69 @@ function trackRow(t, n) {
   div.innerHTML = `
     <div class="num"><span class="idx">${String(n).padStart(2, "0")}</span><span class="eq-bars"><i></i><i></i><i></i></span></div>
     ${artHTML(t, "mini-art")}
-    <div class="t-info"><strong>${t.title}</strong><span>${t.artist} · ${t.album}${isStream(t) && !fullLocalFor(t) ? " · no YouTube ▶️" : ""}</span></div>
+    <div class="t-info"><strong>${t.title}</strong><span>${t.artist} · ${t.album}</span></div>
     <div class="t-act">
       <button data-a="like" title="Curtir">${likes.has(t.idx) ? "❤️" : "🤍"}</button>
-      ${isStream(t) ? `<button data-a="yt" title="Versão completa no YouTube">▶️</button>` : ""}
       <button data-a="queue" title="Adicionar à fila">＋</button>
+      <button data-a="dl" title="Baixar">⤓</button>
     </div>`;
   div.onclick = (e) => {
     const btn = e.target.closest("button");
-    if (!btn) { explicitPlay = true; return playIndex(t.idx); }
+    if (!btn) return playIndex(t.idx);
     if (btn.dataset.a === "like") toggleLike(t.idx);
-    else if (btn.dataset.a === "yt") window.open(ytSearch(t), "_blank");
+    else if (btn.dataset.a === "dl") downloadTrack(t);
     else { order.splice(pos + 1, 0, t.idx); renderQueue(); toast("Adicionada à fila ⏭"); }
   };
   return div;
 }
 
-// (sistema de downloads removido — o catálogo abre a versão completa no YouTube)
+// ---------- download ----------
+function dlName(t) {
+  const ext = t.local ? (t.ext || "mp3") : ((t.src.split(".").pop() || "mp3").split("?")[0].slice(0, 4) || "mp3");
+  return (`${t.artist} - ${t.title}`.replace(/[\\/:*?"<>|]/g, "").slice(0, 90)) + "." + ext;
+}
+async function downloadTrack(t, quiet) {
+  if (!t) return false;
+  if (t.device || t.local || t.src.startsWith("blob:")) { if (!quiet) toast("Essa música já está salva no seu aparelho ✅"); return false; }
+  const file = dlName(t);
+  try {
+    if (window.AndroidDL && window.AndroidDL.download) {
+      if (quiet && window.AndroidDL.downloadQuiet) window.AndroidDL.downloadQuiet(t.src, file);
+      else window.AndroidDL.download(t.src, file);
+      if (!quiet) toast("Baixando… ⤓");
+      return true;
+    }
+    if (!quiet) toast("Baixando… ⤓");
+    const r = await fetch(t.src);
+    if (!r.ok) throw new Error("http");
+    const b = await r.blob();
+    const u = URL.createObjectURL(b);
+    const a = document.createElement("a");
+    a.href = u; a.download = file;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(u), 15000);
+    if (!quiet) toast("Download concluído ✅");
+    return true;
+  } catch { if (!quiet) toast("Falha no download ⚠️"); return false; }
+}
+async function downloadList(list) {
+  list = list.filter((t) => !t.device && !t.local && !t.src.startsWith("blob:"));
+  if (!list.length) return toast("Nada para baixar aqui ⚠️");
+  if (list.length > 20 && !confirm(`Baixar ${list.length} músicas para ouvir offline?`)) return;
+  toast(`Enfileirando ${list.length} downloads… ⤓`);
+  let ok = 0;
+  for (const t of list) {
+    if (await downloadTrack(t, true)) ok++;
+    await new Promise((r) => setTimeout(r, 350));
+  }
+  toast(`${ok}/${list.length} na fila de download ✅`);
+}
+$("#btn-dl-album").onclick = () => downloadList(filteredTracks());
+$("#btn-dl-cb").onclick = () => downloadList(filteredTracks());
+$("#btn-dl-pitty").onclick = () => downloadList(filteredTracks());
+$("#btn-dl").onclick = () => downloadTrack(curTrack());
+
+// ---------- download ----------
 function renderTracks() {
   const list = filteredTracks();
   const box = $("#track-list"); box.innerHTML = "";
@@ -209,7 +253,7 @@ function renderFeatured() {
       ? `<div class="art has-img"><img src="${t.art}" alt="" loading="lazy" /></div>`
       : `<div class="art" style="background:${coverCSS(t.hue)}">${(t.title[0] || "♪").toUpperCase()}</div>`;
     c.innerHTML = `${art}<strong>${t.title}</strong><span>${t.artist}</span>`;
-    c.onclick = () => { explicitPlay = true; playIndex(t.idx); };
+    c.onclick = () => playIndex(t.idx);
     box.appendChild(c);
   });
 }
@@ -240,7 +284,7 @@ function renderQueue() {
     d.className = "q-item";
     d.innerHTML = `${artHTML(t, "mini-art")}
       <div><strong>${t.title}</strong><span>${t.artist}</span></div><button>✕</button>`;
-    d.onclick = (e) => { if (e.target.tagName === "BUTTON") { order.splice(pos + 1 + k, 1); renderQueue(); } else { explicitPlay = true; playAt(pos + 1 + k); } };
+    d.onclick = (e) => { if (e.target.tagName === "BUTTON") { order.splice(pos + 1 + k, 1); renderQueue(); } else playAt(pos + 1 + k); };
     box.appendChild(d);
   });
 }
@@ -250,9 +294,7 @@ function renderLyrics() {
   if (!t) { box.innerHTML = "<p>Toque uma faixa para ver a letra aqui. 🎤</p>"; return; }
   if (isStream(t)) {
     box.innerHTML = `<p><strong>${t.title}</strong> — ${t.artist}<br/><span style="font-size:12px">${t.album} · ${t.year}</span></p>
-      <p>${t._full ? "Tocando o <strong>arquivo do aparelho</strong>." : "Toque no ▶️ para ouvir a <strong>versão completa no YouTube</strong>."}</p>
-      <p><a href="${ytSearch(t)}" target="_blank" rel="noopener" class="yt-link">▶ Ouvir a versão completa no YouTube</a></p>
-      <p><a href="${letraLink(t)}" target="_blank" rel="noopener" class="yt-link alt">📝 Ver letras no Letras.mus.br</a></p>`;
+      <p><a href="${letraLink(t)}" target="_blank" rel="noopener" class="yt-link alt">📝 Ver letra no Letras.mus.br</a></p>`;
     return;
   }
   if (t.device || t.local) {
@@ -280,7 +322,7 @@ function updatePlayerUI() {
   const t = curTrack();
   const title = t ? t.title : "Nada tocando";
   const sub = t ? `${t.artist} · ${t.album}` : "—";
-  const subPrev = isStream(t) && !t._full ? sub + " · no YouTube ▶️" : sub;
+  const subPrev = sub;
   $("#p-title").textContent = title;
   $("#p-artist").textContent = subPrev;
   $("#m-title").textContent = title;
@@ -339,25 +381,10 @@ function loadCurrent(autoplay = true) {
   const t = curTrack(); if (!t) return;
   ensureGraph();
   const local = fullLocalFor(t);
-  // Catálogo sem arquivo no aparelho: abre a versão completa no YouTube
-  // (toque direto) ou pula para a próxima (avanço automático/fila).
-  if (isStream(t) && !local) {
-    const exp = explicitPlay; explicitPlay = false;
-    if (exp) {
-      window.open(ytSearch(t), "_blank");
-      toast("Versão completa no YouTube ▶️");
-      updatePlayerUI(); renderTracks(); renderFeatured(); renderQueue();
-    } else {
-      errCount++;
-      if (errCount > 3) { errCount = 0; toast("Fila sem arquivos locais — toque numa faixa ⚠️"); return; }
-      setTimeout(() => next(false), 400);
-    }
-    return;
-  }
-  explicitPlay = false;
   const src = local ? local.src : t.src;
   if (local && !t._full) toast("Tocando arquivo do aparelho 📱");
   t._full = !!local;
+  if (audio.src !== src && audio.currentSrc !== src) { audio.src = src; abLoop.a = abLoop.b = null; updateAB(); }
   if (audio.src !== src && audio.currentSrc !== src) { audio.src = src; abLoop.a = abLoop.b = null; updateAB(); }
   renderLyrics();
   if (audio.error) { try { audio.load(); } catch {} }
@@ -471,8 +498,8 @@ function needTracks() {
   if (!tracks.length) { toast("Carregando músicas… ⏳"); return false; }
   return true;
 }
-$("#btn-play-all").onclick = () => { if (!needTracks()) return; explicitPlay = true; shuffle = false; buildOrder(0); loadCurrent(true); openSheet(); };
-$("#btn-shuffle-all").onclick = () => { if (!needTracks()) return; explicitPlay = true; shuffle = true; buildOrder(Math.floor(Math.random() * tracks.length)); loadCurrent(true); openSheet(); };
+$("#btn-play-all").onclick = () => { if (!needTracks()) return; shuffle = false; buildOrder(0); loadCurrent(true); openSheet(); };
+$("#btn-shuffle-all").onclick = () => { if (!needTracks()) return; shuffle = true; buildOrder(Math.floor(Math.random() * tracks.length)); loadCurrent(true); openSheet(); };
 $("#btn-toggle-visual").onclick = () => { visualOn = !visualOn; updatePlayerUI(); if (!visualOn) clearVisuals(); };
 $("#btn-clear-queue").onclick = () => { order = [curTrackIdx()]; pos = 0; renderQueue(); toast("Fila limpa 🧹"); };
 $("#btn-reset").onclick = () => { ["thomsongs-v1", "sonara-v2", "sonara-v1"].forEach((k) => localStorage.removeItem(k)); location.reload(); };

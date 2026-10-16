@@ -79,9 +79,8 @@ public class MainActivity extends Activity {
                 }
                 String host = url.getHost();
                 if (host == null) return false;
-                // YouTube / Spotify / letras / WhatsApp / Telegram abrem no app externo
-                if (host.contains("youtube.com") || host.contains("youtu.be")
-                        || host.contains("open.spotify.com") || host.contains("letras.mus.br")
+                // Letras / WhatsApp / Telegram abrem no app externo
+                if (host.contains("letras.mus.br")
                         || host.contains("wa.me") || host.contains("whatsapp.com")
                         || host.contains("t.me") || host.contains("telegram.me")) {
                     try {
