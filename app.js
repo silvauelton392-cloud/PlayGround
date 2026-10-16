@@ -61,6 +61,13 @@ const fmt = (s) => { if (!isFinite(s) || s == null) return "0:00"; s = Math.max(
 const coverCSS = (hue) => `linear-gradient(135deg,hsl(${hue} 80% 55%),hsl(${(hue + 60) % 360} 85% 45%))`;
 const curTrackIdx = () => order[pos];
 const curTrack = () => tracks[curTrackIdx()];
+const normTitle = (s) => (s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, " ").trim();
+// Se o usuário tem o arquivo completo no aparelho, toca ele em vez da prévia
+function fullLocalFor(t) {
+  if (!isStream(t)) return null;
+  const nt = normTitle(t.title);
+  return tracks.find((x) => x.device && normTitle(x.title) === nt) || null;
+}
 
 function toast(msg) {
   const box = $("#toasts");
@@ -156,7 +163,7 @@ function trackRow(t, n) {
   div.innerHTML = `
     <div class="num"><span class="idx">${String(n).padStart(2, "0")}</span><span class="eq-bars"><i></i><i></i><i></i></span></div>
     ${artHTML(t, "mini-art")}
-    <div class="t-info"><strong>${t.title}</strong><span>${t.artist} · ${t.album}${isStream(t) ? " · ▶ 30s" : ""}</span></div>
+    <div class="t-info"><strong>${t.title}</strong><span>${t.artist} · ${t.album}${isStream(t) && !fullLocalFor(t) ? " · ▶ 30s" : ""}</span></div>
     <div class="t-act">
       <button data-a="like" title="Curtir">${likes.has(t.idx) ? "❤️" : "🤍"}</button>
       ${isStream(t) ? `<button data-a="yt" title="Versão completa no YouTube">▶️</button>` : ""}
@@ -288,7 +295,7 @@ function renderLyrics() {
   if (!t) { box.innerHTML = "<p>Toque uma faixa para ver a letra aqui. 🎤</p>"; return; }
   if (isStream(t)) {
     box.innerHTML = `<p><strong>${t.title}</strong> — ${t.artist}<br/><span style="font-size:12px">${t.album} · ${t.year}</span></p>
-      <p>Você está ouvindo uma <strong>prévia de 30 segundos</strong>.</p>
+      <p>${t._full ? "Você está ouvindo a <strong>versão completa</strong> do aparelho." : "Você está ouvindo uma <strong>prévia de 30 segundos</strong>."}</p>
       <p><a href="${ytSearch(t)}" target="_blank" rel="noopener" class="yt-link">▶ Ouvir a versão completa no YouTube</a></p>
       <p><a href="${letraLink(t)}" target="_blank" rel="noopener" class="yt-link alt">📝 Ver letras no Letras.mus.br</a></p>`;
     return;
@@ -318,13 +325,13 @@ function updatePlayerUI() {
   const t = curTrack();
   const title = t ? t.title : "Nada tocando";
   const sub = t ? `${t.artist} · ${t.album}` : "—";
-  const subPrev = isStream(t) ? sub + " · prévia 30s" : sub;
+  const subPrev = isStream(t) && !t._full ? sub + " · prévia 30s" : sub;
   $("#p-title").textContent = title;
   $("#p-artist").textContent = subPrev;
   $("#m-title").textContent = title;
   $("#m-artist").textContent = subPrev;
   $("#hero-title").textContent = t ? t.title : "—";
-  $("#hero-artist").textContent = t ? [t.artist, t.genre, t.bpm ? t.bpm + " BPM" : (isStream(t) ? "prévia 30s" : "")].filter(Boolean).join(" · ") : "Escolha uma faixa abaixo";
+  $("#hero-artist").textContent = t ? [t.artist, t.genre, t.bpm ? t.bpm + " BPM" : (isStream(t) && !t._full ? "prévia 30s" : "")].filter(Boolean).join(" · ") : "Escolha uma faixa abaixo";
   const css = t ? coverCSS(t.hue) : "#333";
   const ch = t ? (t.title[0] || "S").toUpperCase() : "S";
   const cover = $("#cover");
@@ -376,7 +383,11 @@ function playAt(p) { pos = (p + order.length) % order.length; loadCurrent(true);
 function loadCurrent(autoplay = true) {
   const t = curTrack(); if (!t) return;
   ensureGraph();
-  if (audio.src !== t.src && audio.currentSrc !== t.src) { audio.src = t.src; abLoop.a = abLoop.b = null; updateAB(); }
+  const local = fullLocalFor(t);
+  const src = local ? local.src : t.src;
+  if (local && !t._full) toast("Tocando a versão completa do aparelho ▶️");
+  t._full = !!local;
+  if (audio.src !== src && audio.currentSrc !== src) { audio.src = src; abLoop.a = abLoop.b = null; updateAB(); }
   renderLyrics();
   if (audio.error) { try { audio.load(); } catch {} }
   if (autoplay) audio.play().catch(() => { if (!audio.error) toast("Toque em ▶ para começar 🔊"); });
@@ -622,7 +633,7 @@ function drawLoop() {
     gctx.beginPath(); gctx.arc(p.x * bg.width, p.y * bg.height, p.s * (1 + level * 3), 0, 7); gctx.fill();
   });
   gctx.globalAlpha = 1;
-  if (curTrack()) $("#hero-bpm").textContent = isStream(curTrack()) ? "♪ prévia 30s" : `♪ ${curTrack().bpm} BPM`;
+  if (curTrack()) $("#hero-bpm").textContent = isStream(curTrack()) && !curTrack()._full ? "♪ prévia 30s" : (curTrack().bpm ? `♪ ${curTrack().bpm} BPM` : "♪");
 }
 function clearVisuals() { bctx.clearRect(0, 0, big.width, big.height); }
 
