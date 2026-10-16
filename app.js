@@ -926,7 +926,7 @@ function renderChat() {
       return;
     }
     d.className = "bubble " + (m.mine ? "mine" : "theirs");
-    d.innerHTML = `${m.who ? `<span class="who">${esc(m.who)}</span>` : ""}${esc(m.text)}<small>${esc(m.time || "")}</small>`;
+    d.innerHTML = `${m.who ? `<span class="who">${esc(m.who)}</span>` : ""}${m.html ? m.text : esc(m.text)}<small>${esc(m.time || "")}</small>`;
     box.appendChild(d);
   });
   box.querySelectorAll("[data-resend]").forEach((btn) => { btn.onclick = () => resendAudio(btn.dataset.resend); });
@@ -936,11 +936,19 @@ function renderChat() {
 }
 function openChat() { renderChat(); $("#chat").classList.add("open"); setTimeout(() => { try { $("#chat-text").focus(); } catch {} }, 250); }
 function closeChat() { $("#chat").classList.remove("open"); }
-function chatPush(text, mine = true) {
+function chatPush(text, mine = true, html = false) {
   const now = new Date();
-  chat.msgs.push({ text, mine, time: `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}` });
+  chat.msgs.push({ text, mine, html, time: `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}` });
   chat.msgs = chat.msgs.slice(-100);
   chatStore.save(chat); renderChat();
+}
+function sendMusicRequest(text) {
+  // Comando /pedir: pedido de música sempre via WhatsApp para o dono
+  chatPush(`🎵 Pedido: ${text}`);
+  const num = (typeof DEFAULT_WA !== "undefined" && DEFAULT_WA ? DEFAULT_WA : waNumber()) || waNumber();
+  if (!num) { toast("WhatsApp do dono não configurado ⚠️"); return; }
+  window.open(`https://wa.me/${num}?text=${encodeURIComponent("🎵 Pedido Thom Songs\n🎶 " + text)}`, "_blank");
+  chatPush("✅ Pedido enviado ao dono! Valeu! 🙌", false);
 }
 function sendRequest() {
   const inp = $("#chat-text");
@@ -948,6 +956,21 @@ function sendRequest() {
   if (!text) return;
   inp.value = "";
   hideTyping();
+  // Comandos: /pedir, /pedido, /request, /musica → WhatsApp do dono
+  const cmd = text.match(/^\/(pedir|pedido|request|musica)\b\s*(.*)$/i);
+  if (cmd) {
+    const pedido = (cmd[2] || "").trim();
+    if (!pedido) {
+      chatPush("Use assim: <b>/pedir Artista - música</b> 🎵<br>Ex: <i>/pedir NX Zero - Razões e Emoções</i>", false, true);
+      return;
+    }
+    sendMusicRequest(pedido);
+    return;
+  }
+  if (/^\/ajuda\b/i.test(text)) {
+    chatPush("Comandos:<br>🎵 <b>/pedir Artista - música</b> — pede música (vai ao WhatsApp do dono)<br>💬 texto normal — conversa ao vivo no chat", false, true);
+    return;
+  }
   const msg = { id: liveId + "-" + Date.now(), from: liveId, role: liveRole(), name: liveName(), text, ts: Date.now() };
   if (live.on && liveSend("chat", msg)) {
     liveSeen.add(msg.id);
@@ -977,7 +1000,11 @@ $("#chat-text").addEventListener("keydown", (e) => { if (e.key === "Enter") send
 $("#chat-text").addEventListener("input", () => { hideTyping(); clearTimeout(live.typingTimer); live.typingTimer = setTimeout(() => { if (live.on) liveSend("typing", { id: liveId, role: liveRole() }); }, 800); });
 $("#btn-chat-current").onclick = () => {
   const t = curTrack();
-  if (t) $("#chat-text").value = `${t.artist} - ${t.title}`;
+  if (t) $("#chat-text").value = `/pedir ${t.artist} - ${t.title}`;
+  try { $("#chat-text").focus(); } catch {}
+};
+$("#btn-chat-cmd").onclick = () => {
+  $("#chat-text").value = "/pedir ";
   try { $("#chat-text").focus(); } catch {}
 };
 
