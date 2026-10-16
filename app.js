@@ -38,21 +38,28 @@ let listenedSec = saved.listenedSec || 0;
 // ---------- Audio graph ----------
 const audio = $("#audio");
 audio.volume = volumes;
-let actx = null, srcNode = null, analyser = null, gainNode = null, freqData = null;
+let actx = null, srcNode = null, analyser = null, gainNode = null, freqData = null, noGraph = false, graphWarned = false;
 let visualOn = true;
 
 function ensureGraph() {
-  if (actx) { if (actx.state === "suspended") actx.resume(); return; }
-  const AC = window.AudioContext || window.webkitAudioContext;
-  if (!AC) return;
-  actx = new AC();
-  srcNode = actx.createMediaElementSource(audio);
-  analyser = actx.createAnalyser();
-  analyser.fftSize = 256; analyser.smoothingTimeConstant = 0.82;
-  gainNode = actx.createGain();
-  srcNode.connect(analyser);
-  analyser.connect(gainNode); gainNode.connect(actx.destination);
-  freqData = new Uint8Array(analyser.frequencyBinCount);
+  if (noGraph) return;
+  try {
+    if (actx) { if (actx.state === "suspended") actx.resume().catch(() => {}); return; }
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) throw new Error("no AC");
+    actx = new AC();
+    srcNode = actx.createMediaElementSource(audio);
+    analyser = actx.createAnalyser();
+    analyser.fftSize = 256; analyser.smoothingTimeConstant = 0.82;
+    gainNode = actx.createGain();
+    srcNode.connect(analyser);
+    analyser.connect(gainNode); gainNode.connect(actx.destination);
+    freqData = new Uint8Array(analyser.frequencyBinCount);
+  } catch {
+    // WebView sem Web Audio: segue tocando direto pelo elemento
+    noGraph = true; actx = null; analyser = null;
+    if (!graphWarned) { graphWarned = true; toast("Áudio em modo compatível 🔊"); }
+  }
 }
 
 // ---------- helpers ----------
@@ -396,7 +403,7 @@ function loadCurrent(autoplay = true) {
     audio.removeAttribute("src");
     try { audio.load(); } catch {}
     audio.src = src; abLoop.a = abLoop.b = null; updateAB();
-    t._retried = false;
+    t._retried = 0;
     try { audio.load(); } catch {}
   }
   renderLyrics();
@@ -457,22 +464,25 @@ audio.addEventListener("timeupdate", () => {
   if (abLoop.a != null && abLoop.b != null && audio.currentTime >= abLoop.b) audio.currentTime = abLoop.a;
 });
 audio.addEventListener("ended", () => next(true));
-// Recuperação automática: tenta 1x de novo antes de pular
+// Recuperação automática: 2 tentativas com backoff antes de pular
 let errCount = 0, wantPlay = false;
-audio.addEventListener("playing", () => { errCount = 0; wantPlay = true; const t = curTrack(); if (t) t._retried = false; });
+const MEDIA_ERR = { 1: "interrompido", 2: "rede", 3: "decodificação", 4: "fonte não suportada" };
+audio.addEventListener("playing", () => { errCount = 0; wantPlay = true; const t = curTrack(); if (t) t._retried = 0; });
 audio.addEventListener("pause", () => { wantPlay = false; });
 audio.addEventListener("error", () => {
   const t = curTrack();
-  // primeira falha com intenção de tocar: recarrega e tenta de novo
-  if (t && !t._retried && wantPlay) {
-    t._retried = true;
-    toast("Conexão instável, tentando de novo… 🔄");
-    setTimeout(() => { try { audio.load(); } catch {} audio.play().catch(() => {}); }, 900);
+  const code = audio.error ? audio.error.code : 0;
+  try { window.__lastAudioError = { code, src: (audio.currentSrc || "").slice(0, 80), at: Date.now() }; } catch {}
+  // tenta até 2x com intervalo crescente, só se o usuário queria ouvir
+  if (t && wantPlay && (t._retried || 0) < 2) {
+    t._retried = (t._retried || 0) + 1;
+    toast(`Falha de ${MEDIA_ERR[code] || "áudio"} — tentando de novo (${t._retried}/2) 🔄`);
+    setTimeout(() => { try { audio.load(); } catch {} audio.play().catch(() => {}); }, t._retried === 1 ? 900 : 2500);
     return;
   }
   errCount++;
   if (errCount > 3) { errCount = 0; return toast("Muitas falhas seguidas — verifique a internet ⚠️"); }
-  toast(`"${t ? t.title : "Faixa"}" falhou, pulando ⏭`);
+  toast(`"${t ? t.title : "Faixa"}" falhou (${MEDIA_ERR[code] || "erro"}), pulando ⏭`);
   setTimeout(() => { if (audio.error) next(false); }, 700);
 });
 setInterval(() => { if (!audio.paused && audio.src) { listenedSec += 5; persist(); $("#stat-today").textContent = `${Math.floor(listenedSec / 60)} min`; } }, 5000);
