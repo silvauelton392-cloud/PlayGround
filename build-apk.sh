@@ -1,28 +1,18 @@
 #!/usr/bin/env bash
-# Build RELEASE otimizado (R8 + assets minificados) — um APK por app,
-# cada um com seu applicationId (downloads separados, sem conflito):
-#   ./build-apk.sh oa    → apks/oa-sens-hud/OASensHUD-vX.Y.Z.apk   (com.oasens.app)
-#   ./build-apk.sh thom  → apks/thom-songs/ThomSongs-vX.Y.Z.apk    (com.thomsongs.app)
+# Thom Songs — build RELEASE otimizado (R8 + assets minificados).
+# Uso: ./build-apk.sh
 set -euo pipefail
 cd "$(dirname "$0")"
 export ANDROID_HOME="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
 export ANDROID_SDK_ROOT="${ANDROID_SDK_ROOT:-$ANDROID_HOME}"
 
-APP="${1:-oa}"
-case "$APP" in
-  oa)   FLAVOR="Oa";   VJSON="version-oa.json"; OUTDIR="apks/oa-sens-hud"; PREFIX="OASensHUD" ;;
-  thom) FLAVOR="Thom"; VJSON="version.json";    OUTDIR="apks/thom-songs";  PREFIX="ThomSongs" ;;
-  *) echo "Uso: $0 [oa|thom]"; exit 1 ;;
-esac
-
 WWW=android/app/src/main/assets/www
-echo "→ Sincronizando arquivos web para $WWW/ (app: $APP)"
-mkdir -p "$WWW" "$WWW/art" "$OUTDIR"
-cp -f index.html styles.css app.js manifest.webmanifest sw.js \
+echo "→ Sincronizando arquivos web para $WWW/"
+mkdir -p "$WWW" "$WWW/art"
+cp -f index.html styles.css app.js nxzero.json cbjr.json pitty.json manifest.webmanifest sw.js \
       icon-192.png icon-512.png icon-maskable-512.png \
       "$WWW/"
-for f in nxzero.json cbjr.json pitty.json version.json version-oa.json; do [ -f "$f" ] && cp -f "$f" "$WWW/"; done
-[ -d art ] && cp -f art/*.jpg "$WWW/art/" 2>/dev/null || true
+cp -f art/*.jpg "$WWW/art/"
 if [ ! -f android/keystore.properties ]; then
   echo "  (aviso: sem keystore.properties — assinando com chave debug)"
 fi
@@ -61,11 +51,13 @@ except ImportError:
     pass
 EOF
 
-VERSION="$(python3 -c "import json;print(json.load(open('$VJSON'))['versionName'])")"
-echo "→ Compilando APK RELEASE $PREFIX (flavor $APP, R8 + shrink, v$VERSION)..."
-gradle -p android ":app:assemble${FLAVOR}Release" --console=plain -q
+VERSION="$(grep -oP "versionName '\K[^']+" android/app/build.gradle | head -n1)"
+echo "→ Compilando APK RELEASE (R8 + shrink, v$VERSION)..."
+gradle -p android :app:assembleRelease --console=plain -q
 
-APK="${PREFIX}-v${VERSION}.apk"
-cp -f "android/app/build/outputs/apk/${APP}/release/app-${APP}-release.apk" "$OUTDIR/$APK"
-ls "$OUTDIR"/${PREFIX}-v*.apk 2>/dev/null | grep -v "$OUTDIR/$APK" | xargs -r rm -f
+APK="ThomSongs-v${VERSION}.apk"
+OUTDIR="apks/thom-songs"
+mkdir -p "$OUTDIR"
+cp -f android/app/build/outputs/apk/release/app-release.apk "$OUTDIR/$APK"
+ls "$OUTDIR"/ThomSongs-v*.apk "$OUTDIR"/SONARA-v*.apk 2>/dev/null | grep -v "$OUTDIR/$APK" | xargs -r rm -f
 echo "✔ APK pronto: $OUTDIR/$APK ($(du -h "$OUTDIR/$APK" | cut -f1))"

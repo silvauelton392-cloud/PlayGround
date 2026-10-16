@@ -15,35 +15,11 @@ android {
     compileSdk 34
 
     defaultConfig {
+        applicationId 'com.thomsongs.app'
         minSdk 24
         targetSdk 34
-    }
-
-    // Dois apps independentes no mesmo projeto — cada um com seu
-    // applicationId, então o Android os trata como apps diferentes:
-    // instalar/atualizar um NUNCA modifica o outro.
-    //   thom → Thom Songs (música) · com.thomsongs.app
-    //   oa   → OA Sens HUD (Onmyoji Arena) · com.oasens.app
-    flavorDimensions "app"
-    productFlavors {
-        thom {
-            dimension "app"
-            applicationId "com.thomsongs.app"
-            versionCode 27
-            versionName "1.22.0"
-            resValue "string", "app_name", "Thom Songs"
-            resValue "string", "download_dir", "Thom Songs"
-            resValue "string", "prefs_name", "thomupd"
-        }
-        oa {
-            dimension "app"
-            applicationId "com.oasens.app"
-            versionCode 1
-            versionName "1.0.0"
-            resValue "string", "app_name", "OA Sens HUD"
-            resValue "string", "download_dir", "OA Sens HUD"
-            resValue "string", "prefs_name", "oaupd"
-        }
+        versionCode 27
+        versionName '1.22.0'
     }
 
     signingConfigs {

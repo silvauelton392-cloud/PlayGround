@@ -2,19 +2,11 @@
 
 Reprodutor de música exclusivo para Android — NX Zero, Charlie Brown Jr e Pitty, com downloads offline, importação automática do aparelho, chat de pedidos e atualização automática.
 
-## 📲 Baixar os apps (downloads separados)
-
-Cada app tem seu próprio download e pacote Android — instalar um **nunca** modifica o outro.
-
-### 🎵 Thom Songs (música) — `com.thomsongs.app`
+## 📲 Baixar o app
 
 [![Baixar APK](https://img.shields.io/badge/Baixar-APK-25D366?style=for-the-badge&logo=android)](https://github.com/silvauelton392-cloud/PlayGround/releases/tag/v1.22.0)
 
-### ⛩️ OA Sens HUD (Onmyoji Arena) — `com.oasens.app`
-
-[![Baixar APK](https://img.shields.io/badge/Baixar-APK-E8B64C?style=for-the-badge&logo=android)](https://github.com/silvauelton392-cloud/PlayGround/releases/tag/oa-v1.0.0)
-
-1. Baixe o APK do app desejado na [página de releases](https://github.com/silvauelton392-cloud/PlayGround/releases).
+1. Baixe o APK na [release v1.22.0](https://github.com/silvauelton392-cloud/PlayGround/releases/tag/v1.22.0).
 2. Abra o arquivo no celular e autorize a instalação.
 3. Requer Android 7.0 ou superior.
 
