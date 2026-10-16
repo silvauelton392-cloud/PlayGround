@@ -6,7 +6,7 @@ Reprodutor de música exclusivo para Android — NX Zero, Charlie Brown Jr e Pit
 
 [![Baixar APK](https://img.shields.io/badge/Baixar-APK-25D366?style=for-the-badge&logo=android)](https://github.com/silvauelton392-cloud/PlayGround/releases/latest)
 
-1. Baixe o APK na [página de releases](https://github.com/silvauelton392-cloud/PlayGround/releases/latest).
+1. Baixe o APK na [página de releases](https://github.com/silvauelton392-cloud/PlayGround/releases/latest) ou direto no [MediaFire](https://www.mediafire.com/file/b9atobmsaqcqwzq/ThomSongs-v1.26.0.apk/file).
 2. Abra o arquivo no celular e autorize a instalação.
 3. Requer Android 7.0 ou superior.
 
