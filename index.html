@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>Thom Songs — Reprodutor de Música para Android</title>
-<meta name="description" content="Thom Songs — Reprodutor de música exclusivo para Android: NX Zero, playlists, fila e letras." />
-<meta name="theme-color" content="#080a14" />
+<title>OA Sens HUD — Sensibilidade para Onmyoji Arena</title>
+<meta name="description" content="Ajuste sensibilidade, monte seu HUD e otimize o celular para Onmyoji Arena." />
+<meta name="theme-color" content="#100a18" />
 <meta name="mobile-web-app-capable" content="yes" />
 <link rel="manifest" href="./manifest.webmanifest" />
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%238b5cf6'/%3E%3Cstop offset='1' stop-color='%2306b6d4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='32' cy='32' r='30' fill='url(%23g)'/%3E%3Cpath d='M26 20v24l16-8-6-4 6-4z' fill='white'/%3E%3C/svg%3E" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23100a18'/%3E%3Ctext x='32' y='44' font-size='32' text-anchor='middle'%3E⛩️%3C/text%3E%3C/svg%3E" />
 <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
@@ -17,251 +17,204 @@
 <div class="bg-glow g2"></div>
 
 <div id="app">
-  <!-- ===== TOPO ===== -->
   <header id="topbar">
-    <div class="logo-mini"><div class="logo-mark">♪</div><strong>THOM SONGS</strong></div>
-    <label class="upload-btn" title="Importar seus áudios">⤒
-      <input id="file-input" type="file" accept="audio/*" multiple hidden />
-    </label>
+    <div class="logo-mini"><div class="logo-mark">⛩️</div><div><strong>OA SENS HUD</strong><small>Onmyoji Arena</small></div></div>
+    <button id="btn-share" class="icon-btn" title="Compartilhar meus ajustes">📤</button>
     <button id="btn-theme" class="icon-btn" title="Alternar tema">🌙</button>
   </header>
 
   <div class="searchbar">
     <span>🔍</span>
-    <input id="search" type="search" placeholder="Buscar música, artista, álbum..." autocomplete="off" />
+    <input id="search" type="search" placeholder="Buscar shikigami, classe, perfil... (ex: Yoto Hime, ninja)" autocomplete="off" />
   </div>
 
-  <!-- ===== CONTEÚDO ===== -->
+  <nav class="tabs-top" id="tabs-top">
+    <button data-tab="sensi" class="active">🎚️ Sensibilidade</button>
+    <button data-tab="hud">🕹️ Meu HUD</button>
+    <button data-tab="device">📱 Aparelho</button>
+    <button data-tab="guias">📖 Guias</button>
+  </nav>
+
   <main id="main">
-    <section id="perm-card" class="perm-card" hidden>
-      <div class="perm-ico">🎵</div>
-      <div class="perm-txt"><strong>Suas músicas neste aparelho</strong><span>Permita o acesso para importar automaticamente todos os áudios do celular.</span></div>
-      <div class="perm-btns">
-        <button id="btn-perm-ok" class="primary-btn">Permitir acesso</button>
-        <button id="btn-perm-no" class="ghost-btn">Agora não</button>
-      </div>
-    </section>
-
-    <button id="nx-banner" class="nx-banner">
-      <span class="nx-logo">NX</span>
-      <span class="nx-txt"><strong>NX ZERO</strong><small id="nx-banner-sub">Carregando discografia…</small></span>
-      <span class="nx-go">›</span>
-    </button>
-
-    <button id="cb-banner" class="nx-banner cb">
-      <span class="nx-logo">CB</span>
-      <span class="nx-txt"><strong>CHARLIE BROWN JR</strong><small id="cb-banner-sub">Carregando clássicos…</small></span>
-      <span class="nx-go">›</span>
-    </button>
-
-    <section id="cb-head" class="nx-head" hidden>
-      <div class="nx-id">
-        <img id="cb-photo" alt="Charlie Brown Jr" />
-        <div><strong>CHARLIE BROWN JR</strong><span id="cb-stats"></span></div>
-      </div>
-      <div id="cb-albums" class="chips"></div>
-      <div class="row-between" style="margin-top:10px"><small>⬇ OFFLINE</small><button id="btn-dl-cb" class="plus-btn">⤓ Baixar lista</button></div>
-    </section>
-
-    <button id="pitty-banner" class="nx-banner pt">
-      <span class="nx-logo">P</span>
-      <span class="nx-txt"><strong>PITTY</strong><small id="pitty-banner-sub">Carregando…</small></span>
-      <span class="nx-go">›</span>
-    </button>
-
-    <section id="pitty-head" class="nx-head" hidden>
-      <div class="nx-id">
-        <img id="pitty-photo" alt="Pitty" />
-        <div><strong>PITTY</strong><span id="pitty-stats"></span></div>
-      </div>
-      <div id="pitty-albums" class="chips"></div>
-      <div class="row-between" style="margin-top:10px"><small>⬇ OFFLINE</small><button id="btn-dl-pitty" class="plus-btn">⤓ Baixar lista</button></div>
-    </section>
-
-    <section id="nx-head" class="nx-head" hidden>
-      <div class="nx-id">
-        <img id="nx-photo" alt="NX Zero" />
-        <div><strong>NX ZERO</strong><span id="nx-stats"></span></div>
-      </div>
-      <div id="nx-albums" class="chips"></div>
-      <div class="row-between" style="margin-top:10px"><small>⬇ OFFLINE</small><button id="btn-dl-album" class="plus-btn">⤓ Baixar lista</button></div>
-    </section>
-
-    <section id="dev-head" class="nx-head" hidden>
-      <div class="row-between"><small>📱 MÚSICAS NESTE APARELHO</small><button id="btn-rescan" class="link">⟳ atualizar</button></div>
-      <p id="dev-count" class="hint" style="margin:6px 0 0"></p>
-    </section>
-
-    <section class="hero-card">
-      <p id="greeting" class="eyebrow">Boa noite 🌙</p>
-      <canvas id="visual-big" width="520" height="200"></canvas>
-      <div class="hero-meta">
-        <div>
-          <small>AGORA TOCANDO</small>
-          <strong id="hero-title">—</strong>
-          <span id="hero-artist">Escolha uma faixa abaixo</span>
+    <!-- ===== ABA SENSIBILIDADE ===== -->
+    <section id="tab-sensi" class="tab-page active">
+      <div class="hero-card">
+        <p class="eyebrow" id="greeting">Rumo ao Mestre 🏆</p>
+        <div class="hero-meta">
+          <div><small>PERFIL ATIVO</small><strong id="profile-name">Equilibrado</strong><span id="profile-desc">Ideal para subir do Ouro ao Diamante</span></div>
+          <div class="bpm" id="hero-fps">⚡ 60 FPS</div>
         </div>
-        <div id="hero-bpm" class="bpm">♪</div>
+        <div class="hero-btns">
+          <button id="btn-copy" class="primary-btn">📋 Copiar ajustes</button>
+          <button id="btn-reset-sensi" class="ghost-btn" title="Restaurar padrão">↺</button>
+        </div>
       </div>
-      <div class="hero-btns">
-        <button id="btn-play-all" class="primary-btn">▶ Ouvir tudo</button>
-        <button id="btn-shuffle-all" class="ghost-btn">🔀</button>
-        <button id="btn-toggle-visual" class="ghost-btn">📊</button>
+
+      <div class="block">
+        <div class="block-head"><h2>⚡ Perfis rápidos</h2></div>
+        <div id="profiles" class="profiles"></div>
+      </div>
+
+      <div class="block">
+        <div class="block-head"><h2>🎚️ Ajustes finos</h2><small class="hint">toque e arraste</small></div>
+        <div id="sliders" class="sliders"></div>
+      </div>
+
+      <div class="block">
+        <div class="block-head"><h2>🦸 Por classe / rota</h2></div>
+        <div id="roles" class="chips"></div>
+        <p class="hint" id="role-tip"></p>
+      </div>
+
+      <div class="block">
+        <div class="block-head"><h2>🎯 Shikigamis populares</h2></div>
+        <div class="seg" id="hero-filter">
+          <button data-f="all" class="active">Todos</button>
+          <button data-f="Samurai">Samurai</button>
+          <button data-f="Ninja">Ninja</button>
+          <button data-f="Mago">Mago</button>
+          <button data-f="Atirador">Atirador</button>
+          <button data-f="Tanque">Tanque</button>
+          <button data-f="Suporte">Suporte</button>
+        </div>
+        <div id="hero-list" class="hero-list"></div>
       </div>
     </section>
 
-    <section class="block">
-      <div class="block-head"><h2>📁 Playlists</h2><button id="btn-new-playlist" class="plus-btn">＋ Nova</button></div>
-      <div id="playlist-list" class="playlists"></div>
+    <!-- ===== ABA HUD ===== -->
+    <section id="tab-hud" class="tab-page">
+      <div class="hero-card">
+        <p class="eyebrow">Editor de HUD 🕹️</p>
+        <strong class="hud-title">Arraste os botões na arena</strong>
+        <span class="hint">Gire o celular para o modo paisagem para editar melhor. Depois aplique igual dentro do jogo: Config ⚙️ → Layout → Personalizar Botões.</span>
+        <div class="hud-toolbar">
+          <select id="hud-item" class="select"></select>
+          <label>Tam. <input id="hud-size" type="range" min="40" max="140" value="80" /></label>
+          <label>Opac. <input id="hud-opacity" type="range" min="30" max="100" value="100" /></label>
+        </div>
+        <div class="hud-btns">
+          <button id="btn-hud-reset" class="ghost-btn">↺ Padrão</button>
+          <button id="btn-hud-save" class="primary-btn">💾 Salvar layout</button>
+        </div>
+      </div>
+
+      <div id="hud-canvas" class="hud-canvas">
+        <div class="hud-map">🗺️<small>MAPA</small></div>
+        <div class="hud-score">12 — 8 · 08:42</div>
+      </div>
+      <p class="hint center">💡 Dica: selecione o botão na lista, ajuste o tamanho e arraste com o dedo.</p>
+
+      <div class="block">
+        <div class="block-head"><h2>💾 Meus layouts</h2></div>
+        <div id="layout-list" class="layouts"></div>
+        <div class="row">
+          <button id="btn-export" class="ghost-btn">📤 Exportar código</button>
+          <button id="btn-import" class="ghost-btn">📥 Importar código</button>
+        </div>
+        <textarea id="hud-code" class="code" rows="3" placeholder="O código do layout aparece aqui. Cole um código para importar."></textarea>
+      </div>
+
+      <div class="block">
+        <div class="block-head"><h2>📋 Como aplicar no jogo</h2></div>
+        <ol class="steps">
+          <li>Abra o Onmyoji Arena → <b>Configurações ⚙️ → Layout</b>.</li>
+          <li>Toque em <b>Personalizar Botões</b>.</li>
+          <li>Arraste cada botão para a mesma posição do desenho acima.</li>
+          <li>Ajuste o <b>tamanho</b> e a <b>transparência</b> iguais aos valores do app.</li>
+          <li>Salve um esquema por rota (ex: <b>Selva</b>, <b>Mid</b>, <b>Bot</b>) para trocar rápido.</li>
+        </ol>
+      </div>
     </section>
 
-    <section class="block">
-      <div class="block-head">
-        <h2 id="view-title">📀 Em destaque</h2>
+    <!-- ===== ABA APARELHO ===== -->
+    <section id="tab-device" class="tab-page">
+      <div class="hero-card">
+        <p class="eyebrow">Otimização 📱</p>
+        <strong class="hud-title">DPI e desempenho ideais</strong>
+        <span class="hint">Responda 3 perguntas e receba a sensibilidade do sistema + gráficos recomendados para o Onmyoji Arena.</span>
       </div>
-      <div class="seg" id="sort-seg">
-        <button data-sort="padrao" class="active">Padrão</button>
-        <button data-sort="titulo">A–Z</button>
-        <button data-sort="artista">Artista</button>
-        <button data-sort="duracao">Duração</button>
+      <div class="block form">
+        <label>Tamanho da tela (polegadas)<input id="in-size" type="number" min="4" max="14" step="0.1" value="6.5" /></label>
+        <label>Resolução (largura × altura)
+          <div class="row"><input id="in-w" type="number" value="1080" /><input id="in-h" type="number" value="2400" /></div>
+        </label>
+        <label>Estilo de dedos
+          <div class="seg" id="claw-seg">
+            <button data-c="2" class="active">2 dedos</button>
+            <button data-c="3">3 dedos</button>
+            <button data-c="4">4 dedos claw</button>
+            <button data-c="6">6 dedos / tablet</button>
+          </div>
+        </label>
+        <label>Seu celular trava?
+          <div class="seg" id="lag-seg">
+            <button data-l="no" class="active">Roda liso</button>
+            <button data-l="mid">Trava às vezes</button>
+            <button data-l="yes">Trava muito</button>
+          </div>
+        </label>
+        <button id="btn-calc" class="primary-btn full">⚙️ Calcular minha sensibilidade</button>
       </div>
-      <div id="featured" class="cards"></div>
+      <div id="dpi-result" class="result" hidden></div>
+      <div class="block">
+        <div class="block-head"><h2>🚀 Checklist anti-lag</h2></div>
+        <ul class="check" id="lag-list">
+          <li><b>Taxa de quadros:</b> Alta (se travar, volte para Normal).</li>
+          <li><b>Qualidade gráfica:</b> Fluido/Equilibrado em celular intermediário; HD só em topo de linha.</li>
+          <li><b>Efeitos + Sombras:</b> reduza para ganhar FPS em teamfight 5v5.</li>
+          <li><b>Ative</b> o modo jogo / Game Turbo do celular.</li>
+          <li><b>Limpe</b> notificações flutuantes e jogue com ping abaixo de 60ms.</li>
+          <li><b>Dedo escorregando?</b> use dedal ou limpe a tela — a mira agradece.</li>
+        </ul>
+      </div>
     </section>
 
-    <section class="block">
-      <div class="block-head">
-        <h2>🎧 Faixas <small id="track-count"></small></h2>
+    <!-- ===== ABA GUIAS ===== -->
+    <section id="tab-guias" class="tab-page">
+      <div class="block">
+        <div class="block-head"><h2>📖 Teste de sensibilidade (30s)</h2></div>
+        <ol class="steps">
+          <li>Vá em <b>Prática / Treino</b> com Ubume ou Yoto Hime.</li>
+          <li>Deslize a câmera do top ao bot: tem que chegar em <b>1 deslize</b>.</li>
+          <li>Se passar do ponto → <b>diminua</b> a Sens. de Câmera em 1.</li>
+          <li>Se não alcançar → <b>aumente</b> em 1. Repita 3x.</li>
+          <li>Arraste uma skill de mira (ex: Ootengu): a seta tem que parar onde seu dedo parou.</li>
+          <li>Confira a <b>trava de alvo</b>: atirador usa <b>Menor HP</b>, samurai/tanque usa <b>Mais Próximo</b>.</li>
+        </ol>
       </div>
-      <div id="track-list" class="tracks"></div>
-      <p id="empty-msg" class="empty" hidden>Nenhuma faixa encontrada. 🎶</p>
+      <div class="block">
+        <div class="block-head"><h2>❓ Perguntas frequentes</h2></div>
+        <div id="faq" class="faq"></div>
+      </div>
+      <footer class="app-foot">
+        <p>Feito para a comunidade Onmyoji Arena BR 🇧🇷 · Ajustes são ponto de partida — treine e adapte 1 ponto por vez.</p>
+        <p><button id="btn-update" class="link">⟳ verificar atualização</button> · <button id="btn-wipe" class="link">apagar meus dados</button></p>
+      </footer>
     </section>
 
-    <footer class="app-foot">
-      <div class="stat-row"><span>Ouvido</span><strong id="stat-today">0 min</strong></div>
-      <div class="stat-row"><span>Faixas</span><strong id="stat-tracks">0</strong></div>
-      <p>Toque em ⤒ para importar seus áudios · <button id="btn-update" class="link">⟳ atualizar app</button> · <button id="btn-reset" class="link">restaurar demo</button></p>
-    </footer>
     <div class="scroll-pad"></div>
   </main>
 
-  <!-- ===== MINI PLAYER ===== -->
   <div id="miniplayer">
     <div id="mini-progress"><div id="mini-bar"></div></div>
-    <div id="m-cover" class="m-cover"><span>S</span></div>
-    <div class="m-info"><strong id="m-title">Nada tocando</strong><span id="m-artist">—</span></div>
-    <button id="m-play" class="play-btn small">▶</button>
-    <button id="m-next" class="icon-btn">⏭</button>
+    <div class="m-cover" id="m-cover">⛩️</div>
+    <div class="m-info"><strong id="m-title">Perfil: Equilibrado</strong><span id="m-artist">Câmera 5 · Mira 6 · Roda 4</span></div>
+    <button id="m-copy" class="play-btn small" title="Copiar">📋</button>
   </div>
 
-  <!-- ===== NAV INFERIOR ===== -->
   <nav id="tabbar">
-    <button class="nav-item active" data-view="inicio">🏠<span>Início</span></button>
-    <button class="nav-item" data-view="biblioteca">🎵<span>Músicas</span></button>
-    <button class="nav-item" data-view="aparelho">📱<span>Aparelho</span></button>
-    <button class="nav-item" data-view="curtidas">❤️<span>Curtidas</span><em id="nav-likes-count">0</em></button>
-    <button class="nav-item" data-view="historico">🕘<span>Recentes</span></button>
+    <button class="nav-item active" data-view="sensi">🎚️<span>Sensi</span></button>
+    <button class="nav-item" data-view="hud">🕹️<span>HUD</span></button>
+    <button class="nav-item" data-view="device">📱<span>Aparelho</span></button>
+    <button class="nav-item" data-view="guias">📖<span>Guias</span></button>
   </nav>
-
-  <!-- ===== CHAT PEDIR MÚSICA ===== -->
-  <button id="chat-fab" class="chat-fab" title="Pedir música">💬</button>
-  <div id="chat" aria-hidden="true">
-    <div class="chat-inner">
-      <div class="chat-head">
-        <button id="btn-chat-close" class="icon-btn">﹀</button>
-        <div class="chat-title"><strong>🎵 Pedir música</strong><small id="chat-status">online</small></div>
-      </div>
-      <div id="chat-msgs" class="chat-msgs"></div>
-      <div class="chat-quick">
-        <button id="btn-chat-current">＋ pedir a que está tocando</button>
-      </div>
-      <div class="chat-input">
-        <input id="chat-text" placeholder="Artista - música… (ex: NX Zero - Razões e Emoções)" maxlength="140" autocomplete="off" />
-        <button id="btn-chat-send" class="play-btn small">➤</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ===== TELA TOCANDO AGORA ===== -->
-  <div id="sheet" aria-hidden="true">
-    <div class="sheet-inner">
-      <div class="sheet-head">
-        <button id="btn-sheet-close" class="icon-btn">﹀</button>
-        <small>TOCANDO AGORA</small>
-        <button id="btn-add-pl" class="icon-btn" title="Adicionar à playlist">＋</button>
-      </div>
-
-      <div id="cover" class="np-cover"><span>S</span></div>
-      <div class="np-info">
-        <div>
-          <strong id="p-title">Nada tocando</strong>
-          <span id="p-artist">—</span>
-        </div>
-        <button id="btn-dl" class="icon-btn big" title="Baixar">⤓</button>
-        <button id="btn-like" class="icon-btn big" title="Curtir">🤍</button>
-      </div>
-
-      <div class="progress-wrap">
-        <span id="t-cur" class="mono">0:00</span>
-        <div id="progress" class="progress">
-          <div id="buffered" class="buffered"></div>
-          <div id="bar" class="bar"></div>
-          <div id="knob" class="knob"></div>
-          <div id="loop-region" class="loop-region" hidden></div>
-        </div>
-        <span id="t-total" class="mono">0:00</span>
-      </div>
-
-      <div class="controls">
-        <button id="btn-shuffle" class="icon-btn" title="Aleatório">🔀</button>
-        <button id="btn-prev" class="icon-btn big" title="Anterior">⏮</button>
-        <button id="btn-play" class="play-btn" title="Play/Pause">▶</button>
-        <button id="btn-next" class="icon-btn big" title="Próxima">⏭</button>
-        <button id="btn-repeat" class="icon-btn" title="Repetir">🔁</button>
-      </div>
-
-      <div class="vol-row">
-        <button id="btn-ab" class="mini-btn" title="Loop A-B">A-B</button>
-        <button id="btn-mute" class="icon-btn" title="Mudo">🔊</button>
-        <input id="volume" type="range" min="0" max="1" step="0.01" value="0.9" />
-      </div>
-
-      <div class="tabs">
-        <button data-tab="fila" class="active">Fila</button>
-        <button data-tab="letra">Letra</button>
-      </div>
-
-      <div class="sheet-tabs">
-        <div id="tab-fila" class="tab-page active">
-          <div class="row-between"><small>A SEGUIR</small><button id="btn-clear-queue" class="link">limpar</button></div>
-          <div id="queue-list" class="queue"></div>
-          <div class="sleep-box">
-            <small>⏱ Timer de sono</small>
-            <div class="sleep-grid">
-              <button data-sleep="0" class="active">Off</button>
-              <button data-sleep="5">5m</button>
-              <button data-sleep="15">15m</button>
-              <button data-sleep="30">30m</button>
-              <button data-sleep="60">60m</button>
-            </div>
-            <p id="sleep-status">Reprodução contínua.</p>
-          </div>
-        </div>
-        <div id="tab-letra" class="tab-page">
-          <small>LETRA SINCRONIZADA</small>
-          <div id="lyrics" class="lyrics"><p>Toque uma faixa para ver a letra aqui. 🎤</p></div>
-        </div>
-      </div>
-    </div>
-  </div>
 </div>
 
 <div id="toasts"></div>
-
 <div id="modal" class="modal" hidden>
   <div class="modal-card">
-    <h3 id="modal-title">Nova playlist</h3>
-    <input id="modal-input" placeholder="Nome da playlist..." maxlength="40" />
-    <div id="modal-list" class="modal-list"></div>
+    <h3 id="modal-title">Salvar layout</h3>
+    <input id="modal-input" placeholder="Nome do layout... (ex: Claw selva)" maxlength="40" />
     <div class="modal-btns">
       <button id="modal-cancel" class="ghost-btn">Cancelar</button>
       <button id="modal-ok" class="primary-btn">Salvar</button>
@@ -269,35 +222,6 @@
   </div>
 </div>
 
-<div id="modal-update" class="modal" hidden>
-  <div class="modal-card">
-    <h3 id="upd-title">✅ App atualizado!</h3>
-    <p id="upd-ver" class="hint" style="margin:0 0 8px"></p>
-    <p id="upd-notes" style="color:#fff;font-size:14.5px;line-height:1.6;margin:0 0 6px"></p>
-    <div class="modal-btns">
-      <button id="upd-ok" class="primary-btn">Ver novidades 🎵</button>
-    </div>
-  </div>
-</div>
-
-<div id="modal-welcome" class="modal" hidden>
-  <div class="modal-card welcome">
-    <div class="welcome-logo">♪</div>
-    <h3>Bem-vindo ao<br />Thom Songs! 🎉</h3>
-    <p>Seu player de rock nacional no Android.</p>
-    <div class="welcome-feats">
-      <div>🎸 NX Zero, Charlie Brown Jr e Pitty</div>
-      <div>📱 Importa as músicas do aparelho</div>
-      <div>⤓ Baixe para ouvir offline</div>
-      <div>💬 Peça música no chat</div>
-    </div>
-    <div class="modal-btns">
-      <button id="welcome-ok" class="primary-btn">Começar 🎵</button>
-    </div>
-  </div>
-</div>
-
-<audio id="audio" preload="metadata" crossorigin="anonymous"></audio>
 <script>
 if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
   window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));

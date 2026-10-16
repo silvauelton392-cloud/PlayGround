@@ -10,7 +10,7 @@ public class UpdateReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context ctx, Intent intent) {
         long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
-        long pending = ctx.getSharedPreferences("thomupd", Context.MODE_PRIVATE).getLong("dl", -1);
+        long pending = ctx.getSharedPreferences(ctx.getString(R.string.prefs_name), Context.MODE_PRIVATE).getLong("dl", -1);
         if (id == -1 || id != pending) return;
         try {
             DownloadManager dm = (DownloadManager) ctx.getSystemService(Context.DOWNLOAD_SERVICE);

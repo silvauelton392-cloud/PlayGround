@@ -142,13 +142,13 @@ public class MainActivity extends Activity {
                 runOnUiThread(() -> {
                     try {
                         DownloadManager.Request req = new DownloadManager.Request(Uri.parse(url));
-                        req.setTitle("Thom Songs " + file);
+                        req.setTitle(getString(R.string.app_name) + " " + file);
                         req.setDescription("Baixando atualização…");
                         req.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-                        req.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "ThomSongs/" + file);
+                        req.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, getString(R.string.download_dir) + "/" + file);
                         req.setMimeType("application/vnd.android.package-archive");
                         long did = ((DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE)).enqueue(req);
-                        getSharedPreferences("thomupd", MODE_PRIVATE).edit().putLong("dl", did).apply();
+                        getSharedPreferences(getString(R.string.prefs_name), MODE_PRIVATE).edit().putLong("dl", did).apply();
                         Toast.makeText(MainActivity.this, "Baixando atualização…", Toast.LENGTH_SHORT).show();
                     } catch (Exception e) {
                         Toast.makeText(MainActivity.this, "Falha ao baixar atualização", Toast.LENGTH_SHORT).show();
@@ -248,9 +248,9 @@ public class MainActivity extends Activity {
         try {
             DownloadManager.Request req = new DownloadManager.Request(Uri.parse(url));
             req.setTitle(filename);
-            req.setDescription("Thom Songs");
+            req.setDescription(getString(R.string.app_name));
             req.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-            req.setDestinationInExternalPublicDir(Environment.DIRECTORY_MUSIC, "Thom Songs/" + filename);
+            req.setDestinationInExternalPublicDir(Environment.DIRECTORY_MUSIC, getString(R.string.download_dir) + "/" + filename);
             req.allowScanningByMediaScanner();
             ((DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE)).enqueue(req);
             if (!quiet) Toast.makeText(this, "Baixando: " + filename, Toast.LENGTH_SHORT).show();
