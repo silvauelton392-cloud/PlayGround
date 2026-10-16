@@ -2,8 +2,8 @@ plugins {
     id 'com.android.application'
 }
 
-// Assinatura própria: usa android/keystore.properties se existir,
-// senão cai para a chave debug (instalável, mas sem identidade própria).
+// Assinatura própria obrigatória: o build RELEASE aborta sem keystore
+// (nunca mais publicar APK com chave debug por engano).
 def ksProps = new Properties()
 def ksFile = rootProject.file('keystore.properties')
 if (ksFile.exists()) {
@@ -18,18 +18,18 @@ android {
         applicationId 'com.thomsongs.app'
         minSdk 24
         targetSdk 34
-        versionCode 37
-        versionName '1.26.0'
+        versionCode 38
+        versionName '1.26.1'
     }
 
     signingConfigs {
         release {
-            if (ksFile.exists()) {
-                storeFile rootProject.file(ksProps['storeFile'])
-                storePassword ksProps['storePassword']
-                keyAlias ksProps['keyAlias']
-                keyPassword ksProps['keyPassword']
-            }
+            storeFile rootProject.file(ksProps['storeFile'] ?: 'thomsongs-release.keystore')
+            storePassword ksProps['storePassword'] ?: ''
+            keyAlias ksProps['keyAlias'] ?: 'thomsongs'
+            keyPassword ksProps['keyPassword'] ?: ''
+            enableV1Signing = true
+            enableV2Signing = true
         }
     }
 
@@ -38,7 +38,7 @@ android {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            signingConfig ksFile.exists() ? signingConfigs.release : signingConfigs.debug
+            signingConfig signingConfigs.release
         }
         debug {
             minifyEnabled false

@@ -7,15 +7,18 @@ export ANDROID_HOME="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
 export ANDROID_SDK_ROOT="${ANDROID_SDK_ROOT:-$ANDROID_HOME}"
 
 WWW=android/app/src/main/assets/www
+if [ ! -f android/keystore.properties ] || [ ! -f android/thomsongs-release.keystore ]; then
+  echo "ERRO: keystore de release ausente — abortando para não publicar APK debug." >&2
+  echo "Restaure android/thomsongs-release.keystore + android/keystore.properties de um backup." >&2
+  exit 1
+fi
 echo "→ Sincronizando arquivos web para $WWW/"
 mkdir -p "$WWW" "$WWW/art"
 cp -f index.html styles.css app.js catalog.js mqtt.min.js nxzero.json cbjr.json pitty.json nirvana.json manifest.webmanifest sw.js \
       icon-192.png icon-512.png icon-maskable-512.png \
       "$WWW/"
 cp -f art/*.jpg "$WWW/art/"
-if [ ! -f android/keystore.properties ]; then
-  echo "  (aviso: sem keystore.properties — assinando com chave debug)"
-fi
+echo "✔ keystore release OK (Thom Songs)"
 
 echo "→ Minificando assets web..."
 # JS: esbuild (seguro); fallback = mantém original
