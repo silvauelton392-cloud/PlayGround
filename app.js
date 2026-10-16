@@ -390,11 +390,18 @@ function loadCurrent(autoplay = true) {
   const src = local ? local.src : t.src;
   if (local && !t._full) toast("Tocando arquivo do aparelho 📱");
   t._full = !!local;
-  if (audio.src !== src && audio.currentSrc !== src) { audio.src = src; abLoop.a = abLoop.b = null; updateAB(); }
-  if (audio.src !== src && audio.currentSrc !== src) { audio.src = src; abLoop.a = abLoop.b = null; updateAB(); }
+  const changed = audio.src !== src && audio.currentSrc !== src;
+  if (changed) {
+    try { audio.pause(); } catch {}
+    audio.removeAttribute("src");
+    try { audio.load(); } catch {}
+    audio.src = src; abLoop.a = abLoop.b = null; updateAB();
+    t._retried = false;
+    try { audio.load(); } catch {}
+  }
   renderLyrics();
   if (audio.error) { try { audio.load(); } catch {} }
-  if (autoplay) audio.play().catch(() => { if (!audio.error) toast("Toque em ▶ para começar 🔊"); });
+  if (autoplay) { wantPlay = true; audio.play().catch(() => { if (!audio.error) toast("Toque em ▶ para começar 🔊"); }); }
   history = [curTrackIdx(), ...history.filter((x) => x !== curTrackIdx())].slice(0, 30);
   updatePlayerUI(); renderTracks(); renderFeatured(); renderQueue(); persist();
   if ("mediaSession" in navigator) {
@@ -409,7 +416,7 @@ function loadCurrent(autoplay = true) {
 function togglePlay() {
   ensureGraph();
   if (!audio.src && tracks.length) return loadCurrent(true);
-  if (audio.paused) audio.play().catch(() => {}); else audio.pause();
+  if (audio.paused) { wantPlay = true; audio.play().catch(() => {}); } else audio.pause();
 }
 function next(auto = false) {
   if (repeat === "one" && auto) { audio.currentTime = 0; audio.play().catch(() => {}); return; }
@@ -450,11 +457,19 @@ audio.addEventListener("timeupdate", () => {
   if (abLoop.a != null && abLoop.b != null && audio.currentTime >= abLoop.b) audio.currentTime = abLoop.a;
 });
 audio.addEventListener("ended", () => next(true));
-// Recuperação automática: faixa com erro pula para a próxima sozinha
-let errCount = 0;
-audio.addEventListener("playing", () => { errCount = 0; });
+// Recuperação automática: tenta 1x de novo antes de pular
+let errCount = 0, wantPlay = false;
+audio.addEventListener("playing", () => { errCount = 0; wantPlay = true; const t = curTrack(); if (t) t._retried = false; });
+audio.addEventListener("pause", () => { wantPlay = false; });
 audio.addEventListener("error", () => {
   const t = curTrack();
+  // primeira falha com intenção de tocar: recarrega e tenta de novo
+  if (t && !t._retried && wantPlay) {
+    t._retried = true;
+    toast("Conexão instável, tentando de novo… 🔄");
+    setTimeout(() => { try { audio.load(); } catch {} audio.play().catch(() => {}); }, 900);
+    return;
+  }
   errCount++;
   if (errCount > 3) { errCount = 0; return toast("Muitas falhas seguidas — verifique a internet ⚠️"); }
   toast(`"${t ? t.title : "Faixa"}" falhou, pulando ⏭`);

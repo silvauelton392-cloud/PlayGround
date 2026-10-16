@@ -250,7 +250,12 @@ public class MainActivity extends Activity {
             req.setTitle(filename);
             req.setDescription("Thom Songs");
             req.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-            req.setDestinationInExternalPublicDir(Environment.DIRECTORY_MUSIC, "Thom Songs/" + filename);
+            try {
+                req.setDestinationInExternalPublicDir(Environment.DIRECTORY_MUSIC, "Thom Songs/" + filename);
+            } catch (Exception e) {
+                // Android 10+: cai para a pasta privada do app (sempre permitida)
+                req.setDestinationInExternalFilesDir(this, Environment.DIRECTORY_MUSIC, filename);
+            }
             req.allowScanningByMediaScanner();
             ((DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE)).enqueue(req);
             if (!quiet) Toast.makeText(this, "Baixando: " + filename, Toast.LENGTH_SHORT).show();
