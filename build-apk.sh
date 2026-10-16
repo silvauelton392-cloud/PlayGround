@@ -9,7 +9,7 @@ export ANDROID_SDK_ROOT="${ANDROID_SDK_ROOT:-$ANDROID_HOME}"
 WWW=android/app/src/main/assets/www
 echo "→ Sincronizando arquivos web para $WWW/"
 mkdir -p "$WWW" "$WWW/art"
-cp -f index.html styles.css app.js nxzero.json cbjr.json pitty.json manifest.webmanifest sw.js \
+cp -f index.html styles.css app.js nxzero.json cbjr.json pitty.json nirvana.json manifest.webmanifest sw.js \
       icon-192.png icon-512.png icon-maskable-512.png \
       "$WWW/"
 cp -f art/*.jpg "$WWW/art/"

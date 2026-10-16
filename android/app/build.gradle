@@ -18,8 +18,8 @@ android {
         applicationId 'com.thomsongs.app'
         minSdk 24
         targetSdk 34
-        versionCode 27
-        versionName '1.22.0'
+        versionCode 28
+        versionName '1.23.0'
     }
 
     signingConfigs {
