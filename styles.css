@@ -36,6 +36,7 @@ body{margin:0;font-family:var(--font);background:#04050c;color:var(--txt);overfl
 .logo-mini strong{font-size:17px;letter-spacing:2px}
 .upload-btn{background:var(--grad);color:#fff;border-radius:12px;min-width:44px;height:44px;display:grid;place-items:center;font-size:19px;font-weight:800;cursor:pointer}
 .icon-btn{background:var(--card);border:1px solid var(--border);color:var(--txt);border-radius:13px;min-width:44px;height:44px;cursor:pointer;font-size:18px;display:grid;place-items:center;flex:none}
+.icon-btn[hidden]{display:none!important}
 .icon-btn:active{transform:scale(.93)}
 .icon-btn.active{background:var(--grad);color:#fff;border-color:transparent}
 .icon-btn.big{font-size:21px}
