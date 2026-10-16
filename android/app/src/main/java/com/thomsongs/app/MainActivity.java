@@ -135,6 +135,10 @@ public class MainActivity extends Activity {
                 return BuildConfig.VERSION_CODE;
             }
             @JavascriptInterface
+            public String versionName() {
+                return BuildConfig.VERSION_NAME;
+            }
+            @JavascriptInterface
             public void downloadUpdate(String url, String file) {
                 runOnUiThread(() -> {
                     try {

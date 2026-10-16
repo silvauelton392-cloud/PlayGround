@@ -888,6 +888,27 @@ async function checkUpdate(manual) {
 }
 $("#btn-update").onclick = () => checkUpdate(true);
 
+// ---------- aviso de app atualizado ----------
+async function checkFreshUpdate() {
+  if (!window.AndroidApp || !window.AndroidApp.versionCode) return;
+  let cur = 0, name = "";
+  try { cur = window.AndroidApp.versionCode(); name = window.AndroidApp.versionName(); } catch { return; }
+  if (!cur) return;
+  let seen = 0;
+  try { seen = +(localStorage.getItem("thomseen-vc") || 0); } catch {}
+  try { localStorage.setItem("thomseen-vc", String(cur)); } catch {}
+  if (!seen || seen >= cur) return;
+  let notes = "";
+  try {
+    const r = await fetch(UPDATE_BASE + "version.json?t=" + Date.now());
+    if (r.ok) notes = (await r.json()).notes || "";
+  } catch {}
+  $("#upd-ver").textContent = `Versão ${name || cur}`;
+  $("#upd-notes").textContent = notes || "Melhorias e correções.";
+  $("#modal-update").hidden = false;
+}
+$("#upd-ok").onclick = () => ($("#modal-update").hidden = true);
+
 // ---------- init ----------
 greeting();
 buildOrder(0, false);
@@ -902,6 +923,7 @@ loadNX();
 loadCB();
 loadPT();
 setTimeout(() => checkUpdate(false), 9000);
+setTimeout(() => checkFreshUpdate(), 2500);
 (function checkDeviceAccess() {
   if (!window.AndroidLib || !window.AndroidLib.getSongs) return;
   let res;
