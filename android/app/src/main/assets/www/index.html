@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thom'sDrop — Loja Dropshipping | Ofertas com Envio Rápido</title>
+<meta name="description" content="Thom'sDrop: curadoria de produtos vencedores com envio rápido no Brasil. Parcele em até 12x, pague no Pix com desconto.">
+<meta name="theme-color" content="#7c3aed">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Thom'sDrop">
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
+<style>
+:root{
+  --bg:#0f0f14; --bg2:#171722; --card:#1e1e2c; --line:#2a2a3d;
+  --txt:#f4f4f8; --muted:#a7a7bd;
+  --brand:#7c3aed; --brand2:#06d6a0; --accent:#ffbe0b; --danger:#ef476f;
+  --radius:18px; --shadow:0 20px 60px rgba(0,0,0,.45);
+  --font: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:var(--font);background:radial-gradient(1200px 600px at 20% -10%, #7c3aed33, transparent),radial-gradient(1000px 500px at 90% 0%, #06d6a022, transparent),var(--bg);color:var(--txt)}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit}
+.container{max-width:1200px;margin:0 auto;padding:0 20px}
+/* Topbar */
+.topbar{background:linear-gradient(90deg,#7c3aed,#06d6a0);color:#0b0b10;font-size:13px;font-weight:700;text-align:center;padding:9px 12px;letter-spacing:.2px}
+/* Header */
+header{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:rgba(15,15,20,.82);border-bottom:1px solid var(--line)}
+.nav{display:flex;align-items:center;gap:14px;padding:14px 0}
+.logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:22px;letter-spacing:-.5px}
+.logo-mark{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--brand),var(--brand2));display:grid;place-items:center;font-size:20px;box-shadow:0 8px 24px #7c3aed55}
+.search{flex:1;display:flex;background:var(--card);border:1px solid var(--line);border-radius:999px;overflow:hidden;max-width:520px}
+.search input{flex:1;background:transparent;border:0;color:var(--txt);padding:12px 18px;outline:none;font-size:14px}
+.search button{background:var(--txt);color:#111;border:0;padding:0 20px;font-weight:800;cursor:pointer}
+.nav-actions{display:flex;gap:10px;margin-left:auto}
+.icon-btn{position:relative;background:var(--card);border:1px solid var(--line);color:var(--txt);border-radius:999px;padding:10px 16px;cursor:pointer;font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px;transition:.2s}
+.icon-btn:hover{border-color:var(--brand);transform:translateY(-1px)}
+.cart-count{position:absolute;top:-8px;right:-6px;background:var(--accent);color:#111;font-size:12px;font-weight:900;min-width:22px;height:22px;border-radius:999px;display:grid;place-items:center;padding:0 6px}
+.catbar{display:flex;gap:10px;overflow:auto;padding:0 0 14px;scrollbar-width:none}
+.catbar::-webkit-scrollbar{display:none}
+.chip{white-space:nowrap;background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer}
+.chip.active,.chip:hover{background:var(--txt);color:#111;border-color:var(--txt)}
+/* Hero */
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:28px;align-items:center;padding:36px 0 10px}
+.badge{display:inline-flex;align-items:center;gap:8px;background:#ffffff10;border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-size:12.5px;color:var(--muted);font-weight:700}
+.badge i{width:8px;height:8px;border-radius:50%;background:var(--brand2);box-shadow:0 0 12px var(--brand2);display:inline-block}
+.hero h1{font-size:clamp(32px,5vw,58px);line-height:.95;letter-spacing:-2px;margin:16px 0}
+.hero h1 span{background:linear-gradient(90deg,var(--brand2),var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:var(--muted);font-size:16px;line-height:1.6;max-width:520px}
+.hero-cta{display:flex;gap:12px;margin-top:20px;flex-wrap:wrap}
+.btn{border:0;border-radius:999px;padding:15px 26px;font-weight:900;font-size:15px;cursor:pointer;transition:.2s;display:inline-flex;align-items:center;gap:10px;justify-content:center}
+.btn-primary{background:linear-gradient(135deg,var(--brand),#a78bfa);color:white;box-shadow:0 12px 30px #7c3aed55}
+.btn-primary:hover{transform:translateY(-2px) scale(1.01)}
+.btn-ghost{background:transparent;border:1px solid var(--line);color:var(--txt)}
+.btn-ghost:hover{border-color:var(--txt)}
+.trust{display:flex;gap:18px;margin-top:20px;flex-wrap:wrap;color:var(--muted);font-size:13px;font-weight:700}
+.trust b{color:var(--txt)}
+.hero-card{background:linear-gradient(180deg,#232335,#171722);border:1px solid var(--line);border-radius:28px;padding:22px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.hero-card::after{content:"";position:absolute;inset:auto -40px -60px auto;width:260px;height:260px;background:radial-gradient(circle,#7c3aed66,transparent 70%)}
+.flash{display:flex;justify-content:space-between;align-items:center;background:#ffbe0b14;border:1px dashed #ffbe0b66;border-radius:14px;padding:10px 14px;font-size:13px;font-weight:800;color:var(--accent)}
+.flash-timer{font-variant-numeric:tabular-nums;background:var(--accent);color:#111;border-radius:8px;padding:4px 10px}
+.hero-product{display:grid;grid-template-columns:130px 1fr;gap:16px;margin-top:16px;align-items:center}
+.hero-product img{width:130px;height:130px;object-fit:cover;border-radius:18px}
+.price-old{color:var(--muted);text-decoration:line-through;font-size:13px}
+.price{font-size:28px;font-weight:900}
+.pix{color:var(--brand2);font-size:13px;font-weight:800}
+/* Sections */
+section{padding:36px 0}
+.sec-head{display:flex;align-items:end;justify-content:space-between;gap:16px;margin-bottom:18px}
+.sec-head h2{margin:0;font-size:28px;letter-spacing:-.8px}
+.sec-head p{margin:6px 0 0;color:var(--muted);font-size:14px}
+.filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+select,input[type=text],input[type=number]{background:var(--card);border:1px solid var(--line);color:var(--txt);border-radius:12px;padding:11px 14px;font-size:14px;outline:none}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;transition:.25s;position:relative;display:flex;flex-direction:column}
+.card:hover{transform:translateY(-4px);border-color:#ffffff33;box-shadow:var(--shadow)}
+.card-img{position:relative;aspect-ratio:1/.95;overflow:hidden;background:#111}
+.card-img img{width:100%;height:100%;object-fit:cover;transition:.4s}
+.card:hover .card-img img{scale:1.06}
+.tag{position:absolute;top:10px;left:10px;display:flex;gap:6px}
+.tag span{font-size:11px;font-weight:900;padding:5px 10px;border-radius:999px;letter-spacing:.3px}
+.t-off{background:var(--danger);color:white}
+.t-hot{background:var(--accent);color:#111}
+.t-margin{background:#000000cc;color:var(--brand2);border:1px solid var(--brand2)}
+.fav{position:absolute;top:10px;right:10px;width:36px;height:36px;border-radius:50%;border:0;background:#000000aa;color:white;font-size:16px;cursor:pointer;backdrop-filter:blur(6px)}
+.fav.on{color:var(--danger)}
+.card-body{padding:14px 14px 16px;display:flex;flex-direction:column;gap:8px;flex:1}
+.stars{color:var(--accent);font-size:12px;font-weight:800}
+.stars s{color:var(--muted);text-decoration:none;font-weight:600}
+.card-body h3{margin:0;font-size:15px;line-height:1.35;min-height:40px}
+.meta{display:flex;gap:8px;font-size:11.5px;color:var(--muted);font-weight:700}
+.meta span{background:#ffffff0d;border:1px solid var(--line);border-radius:999px;padding:4px 9px}
+.card-foot{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.add{background:var(--txt);color:#111;border:0;border-radius:12px;padding:11px 14px;font-weight:900;cursor:pointer;font-size:13.5px}
+.add:hover{background:var(--brand2)}
+/* perks */
+.perks{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.perk{background:linear-gradient(180deg,#1f1f2f,#15151f);border:1px solid var(--line);border-radius:18px;padding:18px}
+.perk h4{margin:10px 0 6px}
+.perk p{margin:0;color:var(--muted);font-size:13.5px;line-height:1.5}
+/* split */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:22px}
+.panel h3{margin:0 0 6px;font-size:20px}
+.panel p.sub{color:var(--muted);font-size:13.5px;margin:0 0 16px}
+.row{display:flex;gap:10px;margin-bottom:12px}
+.row> *{flex:1}
+.calc-result{background:#06d6a012;border:1px solid #06d6a055;border-radius:14px;padding:14px;margin-top:6px;font-size:14px;line-height:1.6}
+.timeline{margin:14px 0 0;padding:0;list-style:none}
+.timeline li{display:flex;gap:12px;padding:10px 0;border-left:2px solid var(--line);padding-left:18px;margin-left:8px;position:relative;color:var(--muted);font-size:13.5px}
+.timeline li::before{content:"";position:absolute;left:-7px;top:14px;width:12px;height:12px;border-radius:50%;background:var(--line)}
+.timeline li.done{color:var(--txt)}
+.timeline li.done::before{background:var(--brand2);box-shadow:0 0 10px var(--brand2)}
+/* reviews */
+.reviews{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.rev{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;font-size:14px;line-height:1.6}
+.rev b{display:block;margin-top:10px}
+.rev small{color:var(--muted)}
+/* faq */
+details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:10px}
+summary{cursor:pointer;font-weight:800}
+details p{color:var(--muted);font-size:14px;line-height:1.6}
+/* footer */
+footer{border-top:1px solid var(--line);margin-top:20px;background:#0b0b10}
+.foot{display:grid;grid-template-columns:1.2fr 1fr 1fr 1fr;gap:20px;padding:36px 0}
+.foot p,.foot a{color:var(--muted);font-size:13.5px;line-height:1.7}
+.pay{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.pay span{border:1px solid var(--line);border-radius:8px;padding:5px 10px;font-size:12px;font-weight:800;background:#ffffff08}
+/* drawer */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);opacity:0;pointer-events:none;transition:.25s;z-index:90}
+.overlay.show{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:-440px;width:420px;max-width:92vw;height:100dvh;background:#14141d;border-left:1px solid var(--line);z-index:100;transition:.3s;display:flex;flex-direction:column}
+.drawer.open{right:0}
+.drawer-head{padding:18px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+.drawer-body{flex:1;overflow:auto;padding:16px 20px;display:flex;flex-direction:column;gap:12px}
+.cart-item{display:grid;grid-template-columns:64px 1fr auto;gap:12px;background:#ffffff06;border:1px solid var(--line);border-radius:14px;padding:10px;align-items:center}
+.cart-item img{width:64px;height:64px;object-fit:cover;border-radius:10px}
+.qty{display:flex;align-items:center;gap:8px;margin-top:8px}
+.qty button{width:28px;height:28px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--txt);cursor:pointer;font-weight:900}
+.drawer-foot{padding:18px 20px;border-top:1px solid var(--line);background:#101018}
+.free-bar{height:8px;background:#ffffff14;border-radius:999px;overflow:hidden;margin:8px 0 14px}
+.free-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--brand),var(--brand2));border-radius:999px;transition:.3s}
+/* modal */
+.modal{position:fixed;inset:0;z-index:110;display:none;place-items:center;padding:18px}
+.modal.show{display:grid}
+.modal-box{width:980px;max-width:96vw;max-height:92dvh;overflow:auto;background:#16161f;border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow);display:grid;grid-template-columns:1fr 1fr}
+.modal-media{background:#0c0c12;min-height:320px}
+.modal-media img{width:100%;height:100%;object-fit:cover;min-height:420px}
+.modal-info{padding:26px}
+.modal-info h2{margin:8px 0;font-size:26px;letter-spacing:-.5px}
+.x{float:right;background:#ffffff10;border:1px solid var(--line);color:var(--txt);border-radius:50%;width:36px;height:36px;cursor:pointer}
+.opt{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.opt button{border:1px solid var(--line);background:transparent;color:var(--txt);border-radius:999px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer}
+.opt button.sel{background:var(--txt);color:#111}
+.check{width:680px;max-width:96vw;background:#16161f;border:1px solid var(--line);border-radius:22px;padding:24px}
+.steps{display:flex;gap:8px;margin:14px 0 18px}
+.steps span{flex:1;text-align:center;font-size:12px;font-weight:800;padding:8px;border-radius:999px;background:#ffffff0a;color:var(--muted)}
+.steps span.on{background:var(--brand);color:white}
+.toast{position:fixed;bottom:20px;left:50%;transform:translate(-50%,80px);background:var(--txt);color:#111;font-weight:800;font-size:14px;padding:13px 20px;border-radius:999px;z-index:200;transition:.3s;box-shadow:var(--shadow);opacity:0}
+.toast.show{transform:translate(-50%,0);opacity:1}
+.coupon{display:flex;gap:8px;margin:10px 0}
+.news{display:flex;gap:10px;margin-top:14px}
+.news input{flex:1}
+.empty{text-align:center;color:var(--muted);padding:40px 10px}
+/* App / APK */
+.app-banner{background:linear-gradient(135deg,#7c3aed22,#06d6a011);border:1px solid var(--line);border-radius:22px;padding:22px;display:grid;grid-template-columns:80px 1fr auto;gap:18px;align-items:center;margin-top:18px}
+.app-icon{width:80px;height:80px;border-radius:22px;box-shadow:0 10px 30px #7c3aed55}
+.app-banner h3{margin:0 0 6px;font-size:20px}
+.app-banner p{margin:0;color:var(--muted);font-size:13.5px;line-height:1.5}
+.apk-steps{background:#ffffff06;border:1px solid var(--line);border-radius:14px;padding:14px 16px;font-size:13.5px;line-height:1.7;color:var(--muted);margin-top:12px}
+.apk-steps b{color:var(--txt)}
+@media(max-width:980px){
+  .hero{grid-template-columns:1fr}
+  .grid{grid-template-columns:repeat(2,1fr)}
+  .perks{grid-template-columns:repeat(2,1fr)}
+  .split{grid-template-columns:1fr}
+  .reviews{grid-template-columns:1fr}
+  .foot{grid-template-columns:1fr 1fr}
+  .modal-box{grid-template-columns:1fr}
+  .modal-media img{min-height:220px;max-height:300px}
+  .search{display:none}
+  .search.mobile{display:flex;margin:0 0 10px}
+}
+@media(min-width:981px){.search.mobile{display:none}}
+</style>
+</head>
+<body>
+<div class="topbar">⚡ FRETE GRÁTIS acima de R$ 99 • 10% OFF no PIX com cupom <b>PIX10</b> • Parcele em até 12x</div>
+<header>
+  <div class="container">
+    <nav class="nav">
+      <a class="logo" href="#"><span class="logo-mark">◈</span> Thom'sDrop</a>
+      <div class="search"><input id="searchDesk" type="text" placeholder="Buscar: smartwatch, fone, luminária..."><button onclick="doSearch()">Buscar</button></div>
+      <div class="nav-actions">
+        <button class="icon-btn" id="apkBtn" onclick="openApk()" title="Baixar app Android">📱 <span class="hide-mob">App Android</span></button>
+        <button class="icon-btn" onclick="toggleFavFilter()" id="favBtn">♥ <span id="favCount">0</span></button>
+        <button class="icon-btn" onclick="openCart()">🛒 Carrinho <span class="cart-count" id="cartCount">0</span></button>
+      </div>
+    </nav>
+    <div class="search mobile"><input id="searchMob" type="text" placeholder="Buscar produtos..."><button onclick="doSearch()">OK</button></div>
+    <div class="catbar" id="catbar"></div>
+  </div>
+</header>
+
+<div class="container">
+  <div class="hero">
+    <div>
+      <span class="badge"><i></i> +2.400 pedidos entregues • 4.9/5 de avaliação</span>
+      <h1>Produtos vencedores com <span>envio rápido</span> no Brasil.</h1>
+      <p>Curadoria de dropshipping sem espera da China: estoque nacional, rastreio em tempo real, troca em 7 dias e suporte no WhatsApp. Teste sem risco.</p>
+      <div class="hero-cta">
+        <button class="btn btn-primary" onclick="scrollToId('vitrine')">🛍️ Ver ofertas</button>
+        <button class="btn btn-ghost" onclick="openApk()">📱 Baixar APK Android</button>
+        <button class="btn btn-ghost" onclick="scrollToId('calc')">📊 Calculadora de lucro</button>
+      </div>
+      <div class="trust"><span>✅ <b>7 dias</b> p/ trocar</span><span>🔒 Compra <b>100% segura</b></span><span>📦 Postagem em <b>24h</b></span></div>
+    </div>
+    <div class="hero-card">
+      <div class="flash"><span>🔥 OFERTA RELÂMPAGO TERMINA EM</span><span class="flash-timer" id="timer">05:59:59</span></div>
+      <div class="hero-product">
+        <img src="https://images.unsplash.com/photo-1572569511254-d8f925fe2cbb?w=400&q=80&auto=format&fit=crop" alt="Fone Bluetooth">
+        <div>
+          <div class="stars">★★★★★ <s>(3.214)</s></div>
+          <div style="font-weight:800;margin:4px 0">Fone Bluetooth Pro 2 Touch + Estojo Powerbank</div>
+          <div class="price-old">R$ 199,90</div>
+          <div class="price">R$ 97,90 <span class="pix">R$ 88,11 no Pix</span></div>
+          <button class="btn btn-primary" style="margin-top:10px;padding:11px 18px;font-size:13px" onclick="quickAdd(1)">Adicionar rápido +</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section id="vitrine">
+    <div class="sec-head">
+      <div><h2>🔥 Mais vendidos</h2><p id="resultInfo">12 produtos • estoque nacional • postagem em 24h</p></div>
+      <div style="display:flex;gap:8px">
+        <select id="sort" onchange="render()"><option value="rel">Mais relevantes</option><option value="asc">Menor preço</option><option value="desc">Maior preço</option><option value="off">Maior desconto</option><option value="rating">Melhor avaliados</option></select>
+      </div>
+    </div>
+    <div class="filters">
+      <select id="catFilter" onchange="render()"><option value="">Todas categorias</option></select>
+      <select id="priceFilter" onchange="render()"><option value="">Todos preços</option><option value="0-50">Até R$ 50</option><option value="50-100">R$ 50 – 100</option><option value="100-200">R$ 100 – 200</option><option value="200-9999">Acima de R$ 200</option></select>
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);font-weight:700"><input type="checkbox" id="onlyPromo" onchange="render()" style="width:18px;height:18px"> Só promoções</label>
+    </div>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <section>
+    <div class="perks">
+      <div class="perk"><div style="font-size:26px">🚚</div><h4>Envio nacional 2–7 dias</h4><p>Sem alfândega, sem taxa surpresa. Código de rastreio em até 24h úteis.</p></div>
+      <div class="perk"><div style="font-size:26px">💸</div><h4>Alta margem p/ revender</h4><p>Preço de fornecedor + sugestão de markup. Ideal para afiliados e lojistas.</p></div>
+      <div class="perk"><div style="font-size:26px">🛡️</div><h4>Garantia Thom'sDrop</h4><p>7 dias para troca + 90 dias contra defeito. Reembolso sem burocracia.</p></div>
+      <div class="perk"><div style="font-size:26px">💬</div><h4>Suporte que responde</h4><p>WhatsApp e e-mail em horário comercial. Taxa de resolução de 98%.</p></div>
+    </div>
+  </section>
+
+  <section class="split" id="calc">
+    <div class="panel">
+      <h3>📊 Calculadora de lucro dropshipping</h3>
+      <p class="sub">Simule sua margem como lojista antes de anunciar.</p>
+      <div class="row">
+        <div><label style="font-size:12px;color:var(--muted);font-weight:800">CUSTO FORNECEDOR (R$)</label><input type="number" id="cCost" value="47.90" style="width:100%"></div>
+        <div><label style="font-size:12px;color:var(--muted);font-weight:800">PREÇO DE VENDA (R$)</label><input type="number" id="cPrice" value="97.90" style="width:100%"></div>
+      </div>
+      <div class="row">
+        <div><label style="font-size:12px;color:var(--muted);font-weight:800">TAXA GATEWAY %</label><input type="number" id="cFee" value="4.99" style="width:100%"></div>
+        <div><label style="font-size:12px;color:var(--muted);font-weight:800">CUSTO ANÚNCIO (R$)</label><input type="number" id="cAds" value="18" style="width:100%"></div>
+      </div>
+      <button class="btn btn-primary" style="width:100%" onclick="calcProfit()">Calcular margem</button>
+      <div class="calc-result" id="calcOut">Preencha e clique em calcular.</div>
+    </div>
+    <div class="panel" id="track">
+      <h3>📦 Rastrear pedido</h3>
+      <p class="sub">Digite o código recebido após o checkout (ex: DL123456).</p>
+      <div class="row"><input type="text" id="trackCode" placeholder="DL..." style="flex:2"><button class="btn btn-ghost" onclick="trackOrder()" style="flex:1">Rastrear</button></div>
+      <ul class="timeline" id="timeline"><li class="done">Faça um pedido para gerar seu código de rastreio demo.</li></ul>
+      <hr style="border:0;border-top:1px solid var(--line);margin:16px 0">
+      <h3>🤝 Quer revender?</h3>
+      <p class="sub">Importe por link e receba tabela de atacado no e-mail.</p>
+      <div class="row"><input type="text" id="impUrl" placeholder="Cole link do produto (AliExpress, Shopee...)" style="flex:2"><button class="btn btn-ghost" onclick="importProduct()" style="flex:1">Importar</button></div>
+      <div id="impOut" style="font-size:13.5px;color:var(--muted)"></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><div><h2>⭐ Quem comprou, aprovou</h2><p> Avaliações verificadas • última atualização hoje</p></div></div>
+    <div class="reviews">
+      <div class="rev">“Chegou em 4 dias, muito bem embalado. O fone é surreal pela faixa de preço. Já é a segunda compra.”<b>Camila R. — SP</b><small>Compra verificada • Fone Pro 2</small></div>
+      <div class="rev">“Uso a calculadora do site pra precificar minha loja. Margem de 60% no smartwatch, vendi 40 unidades.”<b>Diego M. — Lojista, MG</b><small>Revendedor Thom'sDrop</small></div>
+      <div class="rev">“Tive um problema com a entrega e resolveram no mesmo dia no WhatsApp. Suporte nota 10.”<b>Juliana P. — BA</b><small>Compra verificada • Umidificador</small></div>
+    </div>
+  </section>
+
+  <section style="max-width:760px">
+    <h2>❓ Perguntas frequentes</h2>
+    <details open><summary>É dropshipping? Vou esperar 30 dias?</summary><p>Não. Operamos com estoque avançado no Brasil. Você compra na Thom'sDrop e postamos em 24h úteis com rastreio nacional. Prazo médio 2–7 dias úteis.</p></details>
+    <details><summary>Quais formas de pagamento?</summary><p>Pix com 10% OFF (cupom PIX10), cartão em até 12x e boleto à vista. Checkout transparente, sem criar conta.</p></details>
+    <details><summary>Posso revender / fazer dropshipping com vocês?</summary><p>Sim. Use a calculadora de margem, importe produtos pelo link e fale com nosso time para tabela de atacado a partir de 10 unidades.</p></details>
+    <details><summary>E se eu não gostar?</summary><p>7 dias para troca por qualquer motivo + 90 dias contra defeitos, conforme CDC. Reembolso em até 5 dias úteis.</p></details>
+    <div class="panel" style="margin-top:16px">
+      <h3>📩 Receba ofertas vencedoras</h3>
+      <p class="sub">1 e-mail por semana com produtos em alta + cupons.</p>
+      <div class="news"><input type="text" id="nlEmail" placeholder="seu@email.com"><button class="btn btn-primary" onclick="subscribe()">Assinar</button></div>
+    </div>
+  </section>
+
+  <section id="app">
+    <div class="app-banner">
+      <img class="app-icon" src="./icons/icon-192.png" alt="Thom'sDrop App">
+      <div>
+        <h3>📱 Thom'sDrop no seu Android</h3>
+        <p>Instale como app (PWA — funciona como APK, abre em tela cheia e funciona offline) ou gere o arquivo <b>.apk</b> para distribuir na Play Store / download direto.</p>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="openApk()">⬇️ Download APK</button>
+        <button class="btn btn-ghost" onclick="installPWA()">⚡ Instalar agora</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<footer>
+  <div class="container foot">
+    <div><a class="logo" href="#"><span class="logo-mark">◈</span> Thom'sDrop</a><p>Curadoria de produtos vencedores com operação nacional. CNPJ 00.000.000/0001-00 • São Paulo, Brasil.</p><div class="pay"><span>PIX</span><span>VISA</span><span>MASTER</span><span>ELO</span><span>BOLETO</span></div></div>
+    <div><b>Loja</b><p><a href="#vitrine">Mais vendidos</a><br><a href="#calc">Calculadora de lucro</a><br><a href="#track">Rastrear pedido</a></p></div>
+    <div><b>Ajuda</b><p>Trocas e devoluções<br>Privacidade<br>Termos de uso<br>suporte@thomsdrop.com.br</p></div>
+    <div><b>Atendimento</b><p>Seg–Sáb 9h–18h<br>WhatsApp (11) 90000-0000<br>Postagem em 24h úteis</p></div>
+  </div>
+  <div style="text-align:center;padding:0 0 22px;color:var(--muted);font-size:12px">© 2026 Thom'sDrop • Demo funcional — pagamentos simulados, sem cobrança real.</div>
+</footer>
+
+<div class="overlay" id="overlay" onclick="closeAll()"></div>
+
+<aside class="drawer" id="cartDrawer" aria-label="Carrinho">
+  <div class="drawer-head"><b>🛒 Seu carrinho (<span id="cartN">0</span>)</b><button class="x" onclick="closeAll()">✕</button></div>
+  <div class="drawer-body" id="cartItems"></div>
+  <div class="drawer-foot">
+    <div id="freeMsg" style="font-size:13px;font-weight:800;color:var(--accent)">Faltam R$ 99,00 para frete grátis</div>
+    <div class="free-bar"><i id="freeBar" style="width:0%"></i></div>
+    <div class="coupon"><input type="text" id="coupon" placeholder="Cupom (tente PIX10)" style="flex:1"><button class="btn btn-ghost" style="padding:11px 16px" onclick="applyCoupon()">Aplicar</button></div>
+    <div style="display:flex;justify-content:space-between;font-size:14px;color:var(--muted)"><span>Subtotal</span><b id="subTotal" style="color:var(--txt)">R$ 0,00</b></div>
+    <div style="display:flex;justify-content:space-between;font-size:14px;color:var(--muted)"><span>Desconto</span><b id="discount" style="color:var(--brand2)">− R$ 0,00</b></div>
+    <div style="display:flex;justify-content:space-between;font-size:18px;font-weight:900;margin:8px 0"><span>Total</span><span id="grandTotal">R$ 0,00</span></div>
+    <button class="btn btn-primary" style="width:100%" onclick="openCheckout()">Finalizar compra →</button>
+  </div>
+</aside>
+
+<div class="modal" id="pModal"><div class="modal-box">
+  <div class="modal-media"><img id="mImg" src="" alt=""></div>
+  <div class="modal-info"><button class="x" onclick="closeAll()">✕</button>
+    <div class="stars" id="mStars"></div>
+    <h2 id="mName"></h2>
+    <div id="mMeta" style="color:var(--muted);font-size:13px;font-weight:700"></div>
+    <div style="margin:12px 0"><span class="price-old" id="mOld"></span><div class="price" id="mPrice"></div><div class="pix" id="mPix"></div></div>
+    <div style="font-size:13px;font-weight:800;color:var(--muted)">COR / MODELO</div>
+    <div class="opt" id="mOpts"></div>
+    <div style="font-size:13px;font-weight:800;color:var(--muted)">QTD</div>
+    <div class="qty" style="margin:8px 0 14px"><button onclick="mQty(-1)">−</button><b id="mQ">1</b><button onclick="mQty(1)">+</button></div>
+    <div class="row"><button class="btn btn-primary" style="flex:2" onclick="addFromModal()">Adicionar ao carrinho</button><button class="btn btn-ghost" style="flex:1" onclick="buyNow()">Comprar agora</button></div>
+    <p id="mDesc" style="color:var(--muted);font-size:13.5px;line-height:1.6"></p>
+  </div>
+</div></div>
+
+<div class="modal" id="cModal"><div class="check">
+  <button class="x" onclick="closeAll()">✕</button>
+  <h2 style="margin:0">Checkout seguro 🔒</h2>
+  <div class="steps"><span id="s1" class="on">1 Dados</span><span id="s2">2 Pagamento</span><span id="s3">3 Confirmação</span></div>
+  <div id="step1">
+    <div class="row"><input id="fName" placeholder="Nome completo"><input id="fZap" placeholder="WhatsApp (11) 9..."></div>
+    <div class="row"><input id="fCep" placeholder="CEP 01310-100"><input id="fNum" placeholder="Número + compl."></div>
+    <button class="btn btn-primary" style="width:100%" onclick="goStep(2)">Continuar para pagamento</button>
+  </div>
+  <div id="step2" style="display:none">
+    <div class="opt"><button id="payPix" class="sel" onclick="setPay('pix')">⚡ Pix (10% OFF)</button><button id="payCard" onclick="setPay('card')">💳 Cartão 12x</button><button id="payBol" onclick="setPay('bol')">🧾 Boleto</button></div>
+    <div id="payCardBox" style="display:none"><div class="row"><input placeholder="Número do cartão"><input placeholder="MM/AA"></div><div class="row"><input placeholder="Nome impresso"><input placeholder="CVV"></div></div>
+    <div style="background:#ffffff08;border:1px solid var(--line);border-radius:12px;padding:12px;font-size:14px;margin-bottom:12px">Total a pagar: <b id="payTotal">R$ 0,00</b> <span id="payHint" style="color:var(--brand2)"></span></div>
+    <button class="btn btn-primary" style="width:100%" onclick="pay()">Pagar agora</button>
+  </div>
+  <div id="step3" style="display:none;text-align:center">
+    <div style="font-size:52px">🎉</div>
+    <h3>Pedido confirmado!</h3>
+    <p style="color:var(--muted);font-size:14px">Código de rastreio: <b id="orderCode" style="color:var(--accent)"></b><br>Enviamos os detalhes no seu WhatsApp. Postagem em até 24h úteis.</p>
+    <button class="btn btn-ghost" style="width:100%" onclick="closeAll();trackLast()">Acompanhar entrega →</button>
+  </div>
+</div></div>
+
+<div class="modal" id="apkModal"><div class="check" style="width:560px">
+  <button class="x" onclick="closeAll()">✕</button>
+  <h2 style="margin:0">📱 Baixar app Android</h2>
+  <p style="color:var(--muted);font-size:14px">Thom'sDrop v1.0 • ~85 KB (PWA) • Android 8.0+</p>
+  <div class="row">
+    <button class="btn btn-primary" style="flex:1" onclick="installPWA()">⚡ Instalar app agora</button>
+    <button class="btn btn-ghost" style="flex:1" onclick="downloadApkInfo()">⬇️ Baixar .APK</button>
+  </div>
+  <div class="apk-steps">
+    <b>Opção 1 — Instalar direto (recomendado, igual APK):</b><br>
+    1. Toque em “Instalar app agora” → Confirmar → o ícone Thom'sDrop aparece na tela inicial.<br><br>
+    <b>Opção 2 — Gerar arquivo .APK:</b><br>
+    1. Publique o site com HTTPS • 2. Abra <b>pwabuilder.com</b> → cole a URL → <b>Package for Android</b> → baixe o <b>.apk / .aab</b> assinado.<br>
+    <span style="font-size:12px">Dica: o PWA já usa manifest + service worker inclusos neste projeto (offline + tela cheia).</span>
+  </div>
+  <div style="display:flex;gap:8px;margin-top:12px">
+    <button class="btn btn-ghost" style="flex:1;font-size:13px" onclick="copyLink()">🔗 Copiar link do app</button>
+    <button class="btn btn-ghost" style="flex:1;font-size:13px" onclick="shareApp()">📤 Compartilhar</button>
+  </div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const PRODUCTS=[
+{id:1,name:"Fone Bluetooth Pro 2 Touch + Estojo Powerbank",cat:"Eletrônicos",price:97.9,old:199.9,cost:47.9,rating:4.9,reviews:3214,img:"https://images.unsplash.com/photo-1572569511254-d8f925fe2cbb?w=600&q=80&auto=format&fit=crop",stock:34,hot:true,desc:"Cancelamento de ruído, 36h de bateria e microfone HD. O queridinho para revenda com margem acima de 50%."},
+{id:2,name:"Smartwatch Fit X8 Ultra • Chamada + 120 Esportes",cat:"Eletrônicos",price:149.9,old:299.9,cost:68.5,rating:4.8,reviews:1892,img:"https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=600&q=80&auto=format&fit=crop",stock:21,hot:true,desc:"Tela AMOLED 2.1\", prova d'água IP68, monitor cardíaco e oxigenação. Acompanha 2 pulseiras."},
+{id:3,name:"Umidificador Difusor LED 300ml Silencioso",cat:"Casa",price:69.9,old:129.9,cost:28.9,rating:4.9,reviews:4410,img:"https://images.unsplash.com/photo-1585232004423-244e0e6904e3?w=600&q=80&auto=format&fit=crop",stock:58,hot:true,desc:"Névoa fria, 7 cores de LED e desligamento automático. Viral no TikTok, recompra alta."},
+{id:4,name:"Luminária Astronauta Projetor de Galáxia",cat:"Casa",price:89.9,old:179.9,cost:36.0,rating:4.7,reviews:1204,img:"https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?w=600&q=80&auto=format&fit=crop",stock:42,hot:false,desc:"Projeta nebulosa + estrelas com controle remoto. Presente perfeito, ticket médio alto."},
+{id:5,name:"Mochila Antifurto USB + À Prova d'Água",cat:"Moda",price:119.9,old:239.9,cost:52.0,rating:4.8,reviews:987,img:"https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&q=80&auto=format&fit=crop",stock:27,hot:false,desc:"Abertura oculta, porta USB externa e tecido corta-faca. Ideal para dia a dia e viagem."},
+{id:6,name:"Mini Projetor Smart 4K Wi-Fi + Espelhamento",cat:"Eletrônicos",price:289.9,old:599.9,cost:148.0,rating:4.6,reviews:643,img:"https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=600&q=80&auto=format&fit=crop",stock:12,hot:false,desc:"Cinema em casa até 120\". Conecta celular, TV stick e notebook. Margem campeã para tráfego pago."},
+{id:7,name:"Aspirador Robô + Mop Inteligente 3 em 1",cat:"Casa",price:349.9,old:799.9,cost:189.0,rating:4.7,reviews:512,img:"https://images.unsplash.com/photo-1558317374-067fb5f30001?w=600&q=80&auto=format&fit=crop",stock:9,hot:false,desc:"Aspira, varre e passa pano. Sensor antiqueda e retorno automático à base."},
+{id:8,name:"Liquidificador Portátil USB Recarregável 450ml",cat:"Fitness",price:59.9,old:119.9,cost:24.5,rating:4.8,reviews:2760,img:"https://images.unsplash.com/photo-1570222094114-d054a817e56b?w=600&q=80&auto=format&fit=crop",stock:74,hot:true,desc:"Shake e suco em 30s em qualquer lugar. 6 lâminas inox, lava fácil."},
+{id:9,name:"Kit Skincare Vitamina C + Ácido Hialurônico",cat:"Beleza",price:79.9,old:159.9,cost:29.9,rating:4.9,reviews:5310,img:"https://images.unsplash.com/photo-1620916566398-39f1143ab7f2?w=600&q=80&auto=format&fit=crop",stock:63,hot:true,desc:"Rotina completa dia/noite, vegano e cruelty-free. Recompra a cada 45 dias."},
+{id:10,name:"Massageador Pistola Profissional 6 Velocidades",cat:"Fitness",price:139.9,old:279.9,cost:62.0,rating:4.7,reviews:1108,img:"https://images.unsplash.com/photo-1620188467120-5042ed1eb5da?w=600&q=80&auto=format&fit=crop",stock:19,hot:false,desc:"Alívio muscular profundo, 4 ponteiras e bateria de 6h. Público academia + fisioterapia."},
+{id:11,name:"Corretor Postural Inteligente com Vibração",cat:"Saúde",price:49.9,old:99.9,cost:17.9,rating:4.6,reviews:2033,img:"https://images.unsplash.com/photo-1591348278863-a8fb388326ed?w=600&q=80&auto=format&fit=crop",stock:88,hot:false,desc:"Vibra ao curvar a coluna. Ajustável, discreto sob a roupa. Campeão de anúncios UGC."},
+{id:12,name:"Air Fryer Forno 5L Digital + Janela Visível",cat:"Cozinha",price:399.9,old:749.9,cost:225.0,rating:4.8,reviews:764,img:"https://images.unsplash.com/photo-1626074353765-517a681e40be?w=600&q=80&auto=format&fit=crop",stock:15,hot:false,desc:"12 receitas pré-programadas, sem óleo e cesta antiaderente. Ticket alto, comissão alta."}
+];
+const CATS=["Todos","Eletrônicos","Casa","Moda","Beleza","Fitness","Saúde","Cozinha"];
+let cart=JSON.parse(localStorage.getItem("dl_cart")||"[]");
+let favs=new Set(JSON.parse(localStorage.getItem("dl_fav")||"[]"));
+let coupon=null, favOnly=false, cur=null, curQ=1, curVar="Padrão", payMethod="pix", lastOrder=null;
+const BRL=v=>v.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+const $=id=>document.getElementById(id);
+
+function init(){
+  $("catbar").innerHTML=CATS.map((c,i)=>`<button class="chip ${i===0?'active':''}" onclick="setCat('${c}',this)">${c}</button>`).join("");
+  const cf=$("catFilter"); CATS.slice(1).forEach(c=>{const o=document.createElement("option");o.value=c;o.textContent=c;cf.appendChild(o)});
+  render(); renderCart(); setInterval(tick,1000);
+  let s=5*3600+59*60+59; window._sec=s;
+}
+function setCat(c,el){document.querySelectorAll(".chip").forEach(x=>x.classList.remove("active"));el.classList.add("active");$("catFilter").value=(c==="Todos"?"":c);render()}
+function doSearch(){const v=($("searchDesk").value||$("searchMob").value||"").toLowerCase();render(v)}
+function scrollToId(id){document.getElementById(id).scrollIntoView({behavior:"smooth"})}
+function tick(){window._sec=Math.max(0,window._sec-1);const h=String(Math.floor(window._sec/3600)).padStart(2,"0"),m=String(Math.floor(window._sec%3600/60)).padStart(2,"0"),s=String(window._sec%60).padStart(2,"0");$("timer").textContent=`${h}:${m}:${s}`}
+
+function filtered(extra=""){
+  let list=[...PRODUCTS];
+  const cat=$("catFilter").value, pr=$("priceFilter").value, promo=$("onlyPromo").checked, sort=$("sort").value;
+  if(cat)list=list.filter(p=>p.cat===cat);
+  if(pr){const[a,b]=pr.split("-").map(Number);list=list.filter(p=>p.price>=a&&p.price<=b)}
+  if(promo)list=list.filter(p=>p.old>p.price);
+  if(extra)list=list.filter(p=>(p.name+" "+p.cat).toLowerCase().includes(extra));
+  if(favOnly)list=list.filter(p=>favs.has(p.id));
+  if(sort==="asc")list.sort((a,b)=>a.price-b.price);
+  if(sort==="desc")list.sort((a,b)=>b.price-a.price);
+  if(sort==="off")list.sort((a,b)=>(1-b.price/b.old)-(1-a.price/a.old));
+  if(sort==="rating")list.sort((a,b)=>b.rating-a.rating);
+  return list;
+}
+function off(p){return Math.round((1-p.price/p.old)*100)}
+function render(q=""){
+  const list=filtered(q);
+  $("resultInfo").textContent=`${list.length} produto(s) • estoque nacional • postagem em 24h`;
+  $("grid").innerHTML=list.map(p=>`
+  <div class="card">
+    <div class="card-img" onclick="openProduct(${p.id})" style="cursor:pointer">
+      <img loading="lazy" src="${p.img}" alt="${p.name}">
+      <div class="tag">${p.hot?'<span class="t-hot">🔥 HOT</span>':''}<span class="t-off">-${off(p)}%</span><span class="t-margin">+${Math.round((p.price-p.cost)/p.price*100)}% margem</span></div>
+      <button class="fav ${favs.has(p.id)?'on':''}" onclick="event.stopPropagation();toggleFav(${p.id})">♥</button>
+    </div>
+    <div class="card-body">
+      <div class="stars">★★★★★ ${p.rating} <s>(${p.reviews.toLocaleString("pt-BR")})</s></div>
+      <h3>${p.name}</h3>
+      <div class="meta"><span>📦 ${p.stock} un.</span><span>${p.cat}</span></div>
+      <div><span class="price-old">${BRL(p.old)}</span><div style="font-size:20px;font-weight:900">${BRL(p.price)}</div><div class="pix">${BRL(p.price*0.9)} no Pix</div></div>
+      <div class="card-foot"><button class="add" onclick="quickAdd(${p.id})">+ Adicionar</button><button class="add" style="background:transparent;border:1px solid var(--line);color:var(--txt)" onclick="openProduct(${p.id})">Ver</button></div>
+    </div>
+  </div>`).join("")||`<div class="empty">Nenhum produto encontrado. Tente outra busca. 😕</div>`;
+  $("favCount").textContent=favs.size;
+}
+function toggleFav(id){favs.has(id)?favs.delete(id):favs.add(id);localStorage.setItem("dl_fav",JSON.stringify([...favs]));render();toast(favs.has(id)?"♥ Adicionado aos favoritos":"Removido dos favoritos")}
+function toggleFavFilter(){favOnly=!favOnly;$("favBtn").style.borderColor=favOnly?"var(--danger)":"";render();if(favOnly)toast("Mostrando só favoritos ♥")}
+
+// cart
+function save(){localStorage.setItem("dl_cart",JSON.stringify(cart))}
+function quickAdd(id){const p=PRODUCTS.find(x=>x.id===id);const f=cart.find(x=>x.id===id&&x.var==="Padrão");f?f.q++:cart.push({id,var:"Padrão",q:1});save();renderCart();toast("✅ "+p.name.slice(0,34)+"… no carrinho");openCart(true)}
+function openProduct(id){cur=PRODUCTS.find(x=>x.id===id);curQ=1;curVar="Padrão";
+  $("mImg").src=cur.img;$("mStars").innerHTML=`★★★★★ ${cur.rating} <s style="color:var(--muted)">(${cur.reviews.toLocaleString("pt-BR")} avaliações)</s>`;
+  $("mName").textContent=cur.name;$("mMeta").textContent=`${cur.cat} • ${cur.stock} em estoque • Envio em 24h`;
+  $("mOld").textContent=BRL(cur.old);$("mPrice").textContent=BRL(cur.price);$("mPix").textContent=BRL(cur.price*0.9)+" no Pix com cupom PIX10";
+  $("mDesc").textContent=cur.desc+` Custo fornecedor aprox. ${BRL(cur.cost)} — margem de ${Math.round((cur.price-cur.cost)/cur.price*100)}% para revenda.`;
+  $("mOpts").innerHTML=["Padrão","Preto","Branco","Kit c/ 2 (+R$ 30)"].map((v,i)=>`<button class="${i===0?'sel':''}" onclick="setVar(this,'${v}')">${v}</button>`).join("");
+  $("mQ").textContent="1";show("pModal")}
+function setVar(el,v){curVar=v;document.querySelectorAll("#mOpts button").forEach(b=>b.classList.remove("sel"));el.classList.add("sel")}
+function mQty(d){curQ=Math.max(1,Math.min(cur.stock,curQ+d));$("mQ").textContent=curQ}
+function addFromModal(){const extra=curVar.includes("+R$")?30:0;const f=cart.find(x=>x.id===cur.id&&x.var===curVar);f?f.q+=curQ:cart.push({id:cur.id,var:curVar,q:curQ,extra});save();renderCart();closeAll();openCart(true);toast("✅ Adicionado ao carrinho")}
+function buyNow(){addFromModalSilent();openCheckout()}
+function addFromModalSilent(){const extra=curVar.includes("+R$")?30:0;const f=cart.find(x=>x.id===cur.id&&x.var===curVar);f?f.q+=curQ:cart.push({id:cur.id,var:curVar,q:curQ,extra});save();renderCart()}
+function cartTotals(){let sub=0;cart.forEach(i=>{const p=PRODUCTS.find(x=>x.id===i.id);sub+=(p.price+(i.extra||0))*i.q});let disc=coupon==="PIX10"?sub*0.10:coupon==="BEMVINDO5"?sub*0.05:0;return{sub,disc,total:Math.max(0,sub-disc)}}
+function renderCart(){
+  const n=cart.reduce((a,i)=>a+i.q,0);$("cartCount").textContent=n;$("cartN").textContent=n;
+  if(!cart.length){$("cartItems").innerHTML=`<div class="empty">Seu carrinho está vazio.<br><button class="btn btn-primary" style="margin-top:12px" onclick="closeAll();scrollToId('vitrine')">Descobrir ofertas</button></div>`}
+  else{$("cartItems").innerHTML=cart.map((i,idx)=>{const p=PRODUCTS.find(x=>x.id===i.id);return`<div class="cart-item"><img src="${p.img}"><div><div style="font-size:13px;font-weight:800;line-height:1.3">${p.name.slice(0,48)}…</div><div style="font-size:12px;color:var(--muted)">${i.var} • ${BRL(p.price+(i.extra||0))}</div><div class="qty"><button onclick="chQ(${idx},-1)">−</button><b>${i.q}</b><button onclick="chQ(${idx},1)">+</button><button onclick="rm(${idx})" style="margin-left:6px">🗑️</button></div></div><b>${BRL((p.price+(i.extra||0))*i.q)}</b></div>`}).join("")}
+  const{sub,disc,total}=cartTotals();
+  $("subTotal").textContent=BRL(sub);$("discount").textContent="− "+BRL(disc);$("grandTotal").textContent=BRL(total);
+  const miss=Math.max(0,99-sub);$("freeMsg").textContent=miss>0?`Faltam ${BRL(miss)} para frete grátis`:`🎉 Você ganhou FRETE GRÁTIS!`;
+  $("freeBar").style.width=Math.min(100,sub/99*100)+"%";
+}
+function chQ(idx,d){cart[idx].q+=d;if(cart[idx].q<=0)cart.splice(idx,1);save();renderCart()}
+function rm(idx){cart.splice(idx,1);save();renderCart()}
+function applyCoupon(){const v=$("coupon").value.trim().toUpperCase();if(v==="PIX10"||v==="BEMVINDO5"){coupon=v;toast("🎟️ Cupom "+v+" aplicado!")}else{coupon=null;toast("Cupom inválido. Tente PIX10")}renderCart()}
+function openCart(soft){if(!cart.length&&!soft){toast("Carrinho vazio — adicione uma oferta 🔥")}showDrawer()}
+function showDrawer(){$("cartDrawer").classList.add("open");$("overlay").classList.add("show")}
+function show(id){$(id).classList.add("show");$("overlay").classList.add("show")}
+function closeAll(){$("cartDrawer").classList.remove("open");$("pModal").classList.remove("show");$("cModal").classList.remove("show");const a=$("apkModal");if(a)a.classList.remove("show");$("overlay").classList.remove("show")}
+function toast(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");clearTimeout(window._tt);window._tt=setTimeout(()=>t.classList.remove("show"),2200)}
+
+// checkout
+function openCheckout(){if(!cart.length){toast("Adicione um produto primeiro");return}closeAll();$("cModal").classList.add("show");$("overlay").classList.add("show");goStep(1);updPay()}
+function goStep(n){[1,2,3].forEach(i=>{$("step"+i).style.display=i===n?"block":"none";$("s"+i).classList.toggle("on",i<=n)})}
+function setPay(m){payMethod=m;["pix","card","bol"].forEach(k=>$("pay"+k[0].toUpperCase()+k.slice(1)).classList.remove("sel"));$("pay"+m[0].toUpperCase()+m.slice(1)).classList.add("sel");$("payCardBox").style.display=m==="card"?"block":"none";updPay()}
+function updPay(){const{total}=cartTotals();let v=total,hint="";if(payMethod==="pix"){v=total*0.9;hint="(−10% no Pix)"}if(payMethod==="card"){hint=`(12x de ${BRL(total/12)})`}$("payTotal").textContent=BRL(v);$("payHint").textContent=hint}
+function pay(){
+  if(!$("fName").value||$("fName").value.length<3){toast("Preencha seu nome");goStep(1);return}
+  const code="DL"+Math.floor(100000+Math.random()*899999);lastOrder=code;
+  $("orderCode").textContent=code;goStep(3);cart=[];coupon=null;save();renderCart();
+}
+// tracking
+function trackOrder(){const c=($("trackCode").value||"").trim().toUpperCase()||lastOrder||"DL482913";
+  $("timeline").innerHTML=[["Pedido confirmado","Pagamento aprovado • nota emitida",1],["Embalado no CD São Paulo","Etiqueta gerada • objeto postado",1],["Em trânsito","Curitiba/PR → sua cidade",Math.random()>0.4?1:0],["Saiu para entrega","Courier local • chega hoje",0],["Entregue","Assinatura + foto",0]].map(([t,d,ok])=>`<li class="${ok?'done':''}"><div><b>${t}</b><br>${d} — ${c}</div></li>`).join("");
+  toast("📦 Localizado: "+c)}
+function trackLast(){if(lastOrder){$("trackCode").value=lastOrder;trackOrder();scrollToId("track")}}
+// calc
+function calcProfit(){const c=+$("cCost").value||0,p=+$("cPrice").value||0,f=+$("cFee").value||0,a=+$("cAds").value||0;
+  const fee=p*f/100,lucro=p-c-fee-a,margem=p?lucro/p*100:0,roas=a?((p-c-fee)/a):0;
+  $("calcOut").innerHTML=`Receita: <b>${BRL(p)}</b> − Custo ${BRL(c)} − Taxa ${BRL(fee)} − Ads ${BRL(a)}<br>💰 <b>Lucro/un: ${BRL(lucro)}</b> • Margem: <b style="color:${margem>30?'var(--brand2)':'var(--accent)'}">${margem.toFixed(1)}%</b> • ROAS breakeven: <b>${roas.toFixed(2)}</b><br><small>${margem>40?"🔥 Produto vencedor! Escale com tráfego.":margem>20?"⚠️ Margem ok — negocie fornecedor ou suba o ticket.":"⛔ Margem apertada — revise preço ou custo."}</small>`}
+function importProduct(){const u=$("impUrl").value.trim();if(!u){toast("Cole um link primeiro");return}$("impOut").innerHTML=`⏳ Analisando link...`;setTimeout(()=>{$("impOut").innerHTML=`✅ Produto importado! Custo estimado <b>${BRL(32+Math.random()*80)}</b> • Prazo nacional 3–6 dias • <a href="#" style="color:var(--brand2)">Ver tabela de atacado →</a>`;toast("✅ Produto importado para cotação")},900)}
+function subscribe(){const e=$("nlEmail").value.trim();if(!e.includes("@")){toast("Digite um e-mail válido");return}$("nlEmail").value="";toast("🎉 Inscrito! Cupom BEMVINDO5 enviado")}
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeAll()});
+// --- PWA / APK Android ---
+let deferredPrompt=null;
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e;const b=$("apkBtn");if(b){b.style.borderColor="var(--brand2)";b.innerHTML="📱 Instalar App"}});
+if("serviceWorker" in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("./sw.js").catch(()=>{})})}
+function openApk(){closeAll();show("apkModal")}
+async function installPWA(){
+  if(deferredPrompt){deferredPrompt.prompt();const r=await deferredPrompt.userChoice;deferredPrompt=null;toast(r.outcome==="accepted"?"🎉 App instalado! Procure o ícone Thom'sDrop":"Instalação adiada — tente de novo quando quiser");return}
+  const isAndroid=/Android/i.test(navigator.userAgent);
+  toast(isAndroid?"No Chrome: ⋮ → Instalar app / Adicionar à tela inicial":"No Chrome do Android: ⋮ → Instalar app");
+}
+function downloadApkInfo(){toast("Para gerar o .APK: publique com HTTPS → pwabuilder.com → Package for Android");window.open("https://www.pwabuilder.com","_blank")}
+function copyLink(){navigator.clipboard?.writeText(location.href).then(()=>toast("🔗 Link copiado!")).catch(()=>toast(location.href))}
+async function shareApp(){if(navigator.share){try{await navigator.share({title:"Thom'sDrop",text:"Baixe o app Thom'sDrop!",url:location.href})}catch{}}else{copyLink()}}
+init();
+</script>
+</body>
+</html>
