@@ -1,0 +1,29 @@
+
+screenshots/
+
+*.log
+
+*.pid
+
+.agents/
+
+.agentsweb/
+
+.omgithub-runtime/
+
+.opencode-ssh/
+
+.opencode-web/
+
+node_modules/
+
+# Android build outputs (o APK final ThomSongs-*.apk continua versionado)
+android/build/
+android/.gradle/
+android/app/build/
+android/local.properties
+# Chave de assinatura própria — NÃO versionar (guarde backup!)
+*.keystore
+*.jks
+android/keystore.properties
+*.hprof

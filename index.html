@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Thom Songs — Reprodutor de Música para Android</title>
+<meta name="description" content="Thom Songs — Reprodutor de música exclusivo para Android: NX Zero, playlists, fila e letras." />
+<meta name="theme-color" content="#080a14" />
+<meta name="mobile-web-app-capable" content="yes" />
+<link rel="manifest" href="./manifest.webmanifest" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%238b5cf6'/%3E%3Cstop offset='1' stop-color='%2306b6d4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='32' cy='32' r='30' fill='url(%23g)'/%3E%3Cpath d='M26 20v24l16-8-6-4 6-4z' fill='white'/%3E%3C/svg%3E" />
+<link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+<canvas id="bg-canvas" aria-hidden="true"></canvas>
+<div class="bg-glow g1"></div>
+<div class="bg-glow g2"></div>
+
+<div id="app">
+  <!-- ===== TOPO ===== -->
+  <header id="topbar">
+    <div class="logo-mini"><div class="logo-mark">♪</div><strong>THOM SONGS</strong></div>
+    <label class="upload-btn" title="Importar seus áudios">⤒
+      <input id="file-input" type="file" accept="audio/*" multiple hidden />
+    </label>
+    <button id="btn-theme" class="icon-btn" title="Alternar tema">🌙</button>
+  </header>
+
+  <div class="searchbar">
+    <span>🔍</span>
+    <input id="search" type="search" placeholder="Buscar música, artista, álbum..." autocomplete="off" />
+  </div>
+
+  <!-- ===== CONTEÚDO ===== -->
+  <main id="main">
+    <section id="perm-card" class="perm-card" hidden>
+      <div class="perm-ico">🎵</div>
+      <div class="perm-txt"><strong>Suas músicas neste aparelho</strong><span>Permita o acesso para importar automaticamente todos os áudios do celular.</span></div>
+      <div class="perm-btns">
+        <button id="btn-perm-ok" class="primary-btn">Permitir acesso</button>
+        <button id="btn-perm-no" class="ghost-btn">Agora não</button>
+      </div>
+    </section>
+
+    <button id="nx-banner" class="nx-banner">
+      <span class="nx-logo">NX</span>
+      <span class="nx-txt"><strong>NX ZERO</strong><small id="nx-banner-sub">Carregando discografia…</small></span>
+      <span class="nx-go">›</span>
+    </button>
+
+    <button id="cb-banner" class="nx-banner cb">
+      <span class="nx-logo">CB</span>
+      <span class="nx-txt"><strong>CHARLIE BROWN JR</strong><small id="cb-banner-sub">Carregando clássicos…</small></span>
+      <span class="nx-go">›</span>
+    </button>
+
+    <section id="cb-head" class="nx-head" hidden>
+      <div class="nx-id">
+        <img id="cb-photo" alt="Charlie Brown Jr" />
+        <div><strong>CHARLIE BROWN JR</strong><span id="cb-stats"></span><span class="previa-pill">PRÉVIAS DE 30s</span></div>
+      </div>
+      <div id="cb-albums" class="chips"></div>
+      <div class="row-between" style="margin-top:10px"><small>⬇ OFFLINE</small><button id="btn-dl-cb" class="plus-btn">⤓ Baixar lista</button></div>
+    </section>
+
+    <section id="nx-head" class="nx-head" hidden>
+      <div class="nx-id">
+        <img id="nx-photo" alt="NX Zero" />
+        <div><strong>NX ZERO</strong><span id="nx-stats"></span><span class="previa-pill">PRÉVIAS DE 30s</span></div>
+      </div>
+      <div id="nx-albums" class="chips"></div>
+      <div class="row-between" style="margin-top:10px"><small>⬇ OFFLINE</small><button id="btn-dl-album" class="plus-btn">⤓ Baixar lista</button></div>
+    </section>
+
+    <section id="dev-head" class="nx-head" hidden>
+      <div class="row-between"><small>📱 MÚSICAS NESTE APARELHO</small><button id="btn-rescan" class="link">⟳ atualizar</button></div>
+      <p id="dev-count" class="hint" style="margin:6px 0 0"></p>
+    </section>
+
+    <section class="hero-card">
+      <p id="greeting" class="eyebrow">Boa noite 🌙</p>
+      <canvas id="visual-big" width="520" height="200"></canvas>
+      <div class="hero-meta">
+        <div>
+          <small>AGORA TOCANDO</small>
+          <strong id="hero-title">—</strong>
+          <span id="hero-artist">Escolha uma faixa abaixo</span>
+        </div>
+        <div id="hero-bpm" class="bpm">♪</div>
+      </div>
+      <div class="hero-btns">
+        <button id="btn-play-all" class="primary-btn">▶ Ouvir tudo</button>
+        <button id="btn-shuffle-all" class="ghost-btn">🔀</button>
+        <button id="btn-toggle-visual" class="ghost-btn">📊</button>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="block-head"><h2>📁 Playlists</h2><button id="btn-new-playlist" class="plus-btn">＋ Nova</button></div>
+      <div id="playlist-list" class="playlists"></div>
+    </section>
+
+    <section class="block">
+      <div class="block-head">
+        <h2 id="view-title">📀 Em destaque</h2>
+      </div>
+      <div class="seg" id="sort-seg">
+        <button data-sort="padrao" class="active">Padrão</button>
+        <button data-sort="titulo">A–Z</button>
+        <button data-sort="artista">Artista</button>
+        <button data-sort="duracao">Duração</button>
+      </div>
+      <div id="featured" class="cards"></div>
+    </section>
+
+    <section class="block">
+      <div class="block-head">
+        <h2>🎧 Faixas <small id="track-count"></small></h2>
+      </div>
+      <div id="track-list" class="tracks"></div>
+      <p id="empty-msg" class="empty" hidden>Nenhuma faixa encontrada. 🎶</p>
+    </section>
+
+    <footer class="app-foot">
+      <div class="stat-row"><span>Ouvido</span><strong id="stat-today">0 min</strong></div>
+      <div class="stat-row"><span>Faixas</span><strong id="stat-tracks">0</strong></div>
+      <p>Toque em ⤒ para importar seus áudios · <button id="btn-update" class="link">⟳ atualizar app</button> · <button id="btn-reset" class="link">restaurar demo</button></p>
+    </footer>
+    <div class="scroll-pad"></div>
+  </main>
+
+  <!-- ===== MINI PLAYER ===== -->
+  <div id="miniplayer">
+    <div id="mini-progress"><div id="mini-bar"></div></div>
+    <div id="m-cover" class="m-cover"><span>S</span></div>
+    <div class="m-info"><strong id="m-title">Nada tocando</strong><span id="m-artist">—</span></div>
+    <button id="m-play" class="play-btn small">▶</button>
+    <button id="m-next" class="icon-btn">⏭</button>
+  </div>
+
+  <!-- ===== NAV INFERIOR ===== -->
+  <nav id="tabbar">
+    <button class="nav-item active" data-view="inicio">🏠<span>Início</span></button>
+    <button class="nav-item" data-view="biblioteca">🎵<span>Músicas</span></button>
+    <button class="nav-item" data-view="aparelho">📱<span>Aparelho</span></button>
+    <button class="nav-item" data-view="curtidas">❤️<span>Curtidas</span><em id="nav-likes-count">0</em></button>
+    <button class="nav-item" data-view="historico">🕘<span>Recentes</span></button>
+  </nav>
+
+  <!-- ===== CHAT PEDIR MÚSICA ===== -->
+  <button id="chat-fab" class="chat-fab" title="Pedir música">💬</button>
+  <div id="chat" aria-hidden="true">
+    <div class="chat-inner">
+      <div class="chat-head">
+        <button id="btn-chat-close" class="icon-btn">﹀</button>
+        <div class="chat-title"><strong>🎵 Pedir música</strong><small id="chat-status">online</small></div>
+        <button id="btn-chat-cfg" class="icon-btn" title="Configurar WhatsApp">⚙️</button>
+      </div>
+      <div id="chat-msgs" class="chat-msgs"></div>
+      <div class="chat-quick">
+        <button id="btn-chat-current">＋ pedir a que está tocando</button>
+      </div>
+      <div class="chat-input">
+        <input id="chat-text" placeholder="Artista - música… (ex: NX Zero - Razões e Emoções)" maxlength="140" autocomplete="off" />
+        <button id="btn-chat-send" class="play-btn small">➤</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TELA TOCANDO AGORA ===== -->
+  <div id="sheet" aria-hidden="true">
+    <div class="sheet-inner">
+      <div class="sheet-head">
+        <button id="btn-sheet-close" class="icon-btn">﹀</button>
+        <small>TOCANDO AGORA</small>
+        <button id="btn-add-pl" class="icon-btn" title="Adicionar à playlist">＋</button>
+      </div>
+
+      <div id="cover" class="np-cover"><span>S</span></div>
+      <div class="np-info">
+        <div>
+          <strong id="p-title">Nada tocando</strong>
+          <span id="p-artist">—</span>
+        </div>
+        <button id="btn-dl" class="icon-btn big" title="Baixar">⤓</button>
+        <button id="btn-like" class="icon-btn big" title="Curtir">🤍</button>
+      </div>
+
+      <div class="progress-wrap">
+        <span id="t-cur" class="mono">0:00</span>
+        <div id="progress" class="progress">
+          <div id="buffered" class="buffered"></div>
+          <div id="bar" class="bar"></div>
+          <div id="knob" class="knob"></div>
+          <div id="loop-region" class="loop-region" hidden></div>
+        </div>
+        <span id="t-total" class="mono">0:00</span>
+      </div>
+
+      <div class="controls">
+        <button id="btn-shuffle" class="icon-btn" title="Aleatório">🔀</button>
+        <button id="btn-prev" class="icon-btn big" title="Anterior">⏮</button>
+        <button id="btn-play" class="play-btn" title="Play/Pause">▶</button>
+        <button id="btn-next" class="icon-btn big" title="Próxima">⏭</button>
+        <button id="btn-repeat" class="icon-btn" title="Repetir">🔁</button>
+      </div>
+
+      <div class="vol-row">
+        <button id="btn-ab" class="mini-btn" title="Loop A-B">A-B</button>
+        <button id="btn-mute" class="icon-btn" title="Mudo">🔊</button>
+        <input id="volume" type="range" min="0" max="1" step="0.01" value="0.9" />
+      </div>
+
+      <div class="tabs">
+        <button data-tab="fila" class="active">Fila</button>
+        <button data-tab="letra">Letra</button>
+      </div>
+
+      <div class="sheet-tabs">
+        <div id="tab-fila" class="tab-page active">
+          <div class="row-between"><small>A SEGUIR</small><button id="btn-clear-queue" class="link">limpar</button></div>
+          <div id="queue-list" class="queue"></div>
+          <div class="sleep-box">
+            <small>⏱ Timer de sono</small>
+            <div class="sleep-grid">
+              <button data-sleep="0" class="active">Off</button>
+              <button data-sleep="5">5m</button>
+              <button data-sleep="15">15m</button>
+              <button data-sleep="30">30m</button>
+              <button data-sleep="60">60m</button>
+            </div>
+            <p id="sleep-status">Reprodução contínua.</p>
+          </div>
+        </div>
+        <div id="tab-letra" class="tab-page">
+          <small>LETRA SINCRONIZADA</small>
+          <div id="lyrics" class="lyrics"><p>Toque uma faixa para ver a letra aqui. 🎤</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toasts"></div>
+
+<div id="modal" class="modal" hidden>
+  <div class="modal-card">
+    <h3 id="modal-title">Nova playlist</h3>
+    <input id="modal-input" placeholder="Nome da playlist..." maxlength="40" />
+    <div id="modal-list" class="modal-list"></div>
+    <div class="modal-btns">
+      <button id="modal-cancel" class="ghost-btn">Cancelar</button>
+      <button id="modal-ok" class="primary-btn">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<audio id="audio" preload="metadata" crossorigin="anonymous"></audio>
+<script>
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
+}
+</script>
+<script src="./app.js"></script>
+</body>
+</html>
