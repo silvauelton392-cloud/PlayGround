@@ -959,7 +959,8 @@ $("#btn-chat-current").onclick = () => {
 // ---------- chat: modo dono + envio de áudio (só o dono envia) ----------
 let ownerMode = false;
 const audioBlobs = {}, audioURLs = {};
-function ownerPin() { try { return localStorage.getItem("thom_owner_pin") || ""; } catch { return ""; } }
+const DEFAULT_OWNER_PIN = "Thom@12345"; // PIN do dono
+function ownerPin() { try { return localStorage.getItem("thom_owner_pin") || DEFAULT_OWNER_PIN; } catch { return DEFAULT_OWNER_PIN; } }
 function setOwnerPin(p) { try { localStorage.setItem("thom_owner_pin", p); } catch {} }
 function refreshOwnerUI() {
   $("#btn-chat-mic").hidden = !ownerMode;
@@ -969,12 +970,9 @@ function refreshOwnerUI() {
 function ownerToggle() {
   if (ownerMode) { ownerMode = false; refreshOwnerUI(); toast("Modo dono off"); return; }
   const has = ownerPin();
-  const v = prompt(has ? "PIN do dono:" : "Crie seu PIN do dono (4+ dígitos):");
+  const v = prompt("PIN do dono:");
   if (v == null) return;
-  if (!has) {
-    if (v.replace(/\D/g, "").length < 4) return toast("PIN muito curto ⚠️");
-    setOwnerPin(v); ownerMode = true;
-  } else if (v === has) ownerMode = true;
+  if (v === has) ownerMode = true;
   else return toast("PIN incorreto 🚫");
   refreshOwnerUI(); toast("Modo dono ativo 👑 — só você envia áudio");
 }
