@@ -110,6 +110,12 @@ body{margin:0;font-family:var(--font);background:#04050c;color:var(--txt);overfl
 .link{background:none;border:0;color:var(--acc2);cursor:pointer;font-weight:700;font-size:12px}
 .scroll-pad{height:8px}
 
+/* Aviso de atualização */
+.update-card{background:linear-gradient(135deg,rgba(250,204,21,.2),rgba(249,115,22,.14));border:1px solid rgba(250,204,21,.45);border-radius:20px;padding:16px;margin:4px 0 14px}
+.update-card[hidden]{display:none}
+.update-card .perm-txt strong{display:block;font-size:15.5px;margin:6px 0 3px}
+.update-card .perm-txt span{font-size:13px;color:var(--mut);line-height:1.5}
+.update-card .perm-btns{display:flex;gap:8px;margin-top:12px}
 /* Permissão de áudios */
 .perm-card{background:linear-gradient(135deg,rgba(52,211,153,.18),rgba(6,182,212,.14));border:1px solid rgba(52,211,153,.4);border-radius:20px;padding:16px;margin:4px 0 14px}
 .perm-card[hidden]{display:none}

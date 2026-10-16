@@ -668,16 +668,17 @@ async function loadNX() {
     NX = await r.json();
     const cur = order[pos];
     NX.tracks.forEach((nt) => {
+      if (tracks.some((t) => t.src === nt.preview)) return;
       tracks.push({ title: nt.title, artist: nt.artist, album: nt.album, genre: "Rock", hue: nt.id % 360, src: nt.preview, nx: true, art: nt.art, year: nt.year });
     });
     if (shuffle && cur !== undefined && tracks[cur]) buildOrder(cur);
     else { order = tracks.map((_, i) => i); pos = Math.max(0, order.indexOf(cur)); }
     $("#nx-banner-sub").textContent = `${NX.total} músicas · ${NX.albums.length} álbuns`;
     renderAll();
-  } catch { const b = $("#nx-banner"); if (b) b.style.display = "none"; }
+  } catch { const el = $("#nx-banner-sub"); if (el) el.textContent = "Falha ao carregar — toque para tentar"; }
 }
 $("#nx-banner").onclick = () => {
-  if (!NX) return toast("Carregando discografia… ⏳");
+  if (!NX) { toast("Tentando carregar… ⏳"); loadNX(); return; }
   view = "nxzero"; nxAlbum = ""; activePlaylist = null;
   syncNav(); renderAll(); $("#main").scrollTo({ top: 0 });
 };
@@ -708,16 +709,17 @@ async function loadCB() {
     CB = await r.json();
     const cur = order[pos];
     CB.tracks.forEach((ct) => {
+      if (tracks.some((t) => t.src === ct.preview)) return;
       tracks.push({ title: ct.title, artist: ct.artist, album: ct.album, genre: "Rock", hue: (ct.id * 7) % 360, src: ct.preview, cb: true, art: ct.art, year: ct.year });
     });
     if (shuffle && cur !== undefined && tracks[cur]) buildOrder(cur);
-    else order = [...order, ...CB.tracks.map((_, k) => tracks.length - CB.tracks.length + k)];
+    else { const have = new Set(order); tracks.forEach((_, i) => { if (!have.has(i)) { order.push(i); have.add(i); } }); }
     $("#cb-banner-sub").textContent = `${CB.total} clássicos`;
     renderAll();
-  } catch { const b = $("#cb-banner"); if (b) b.style.display = "none"; }
+  } catch { const el = $("#cb-banner-sub"); if (el) el.textContent = "Falha ao carregar — toque para tentar"; }
 }
 $("#cb-banner").onclick = () => {
-  if (!CB) return toast("Carregando… ⏳");
+  if (!CB) { toast("Tentando carregar… ⏳"); loadCB(); return; }
   view = "cbjr"; cbAlbum = ""; activePlaylist = null;
   syncNav(); renderAll(); $("#main").scrollTo({ top: 0 });
 };
@@ -748,16 +750,17 @@ async function loadPT() {
     PT = await r.json();
     const cur = order[pos];
     PT.tracks.forEach((pt) => {
+      if (tracks.some((t) => t.src === pt.preview)) return;
       tracks.push({ title: pt.title, artist: pt.artist, album: pt.album, genre: "Rock", hue: (pt.id * 13) % 360, src: pt.preview, pitty: true, art: pt.art, year: pt.year });
     });
     if (shuffle && cur !== undefined && tracks[cur]) buildOrder(cur);
-    else order = [...order, ...PT.tracks.map((_, k) => tracks.length - PT.tracks.length + k)];
+    else { const have = new Set(order); tracks.forEach((_, i) => { if (!have.has(i)) { order.push(i); have.add(i); } }); }
     $("#pitty-banner-sub").textContent = `${PT.total} faixa(s)`;
     renderAll();
-  } catch { const b = $("#pitty-banner"); if (b) b.style.display = "none"; }
+  } catch { const el = $("#pitty-banner-sub"); if (el) el.textContent = "Falha ao carregar — toque para tentar"; }
 }
 $("#pitty-banner").onclick = () => {
-  if (!PT) return toast("Carregando… ⏳");
+  if (!PT) { toast("Tentando carregar… ⏳"); loadPT(); return; }
   view = "pitty"; ptAlbum = ""; activePlaylist = null;
   syncNav(); renderAll(); $("#main").scrollTo({ top: 0 });
 };
@@ -788,16 +791,17 @@ async function loadNV() {
     NV = await r.json();
     const cur = order[pos];
     NV.tracks.forEach((nv) => {
+      if (tracks.some((t) => t.src === nv.preview)) return;
       tracks.push({ title: nv.title, artist: nv.artist, album: nv.album, genre: "Rock", hue: (nv.id * 17) % 360, src: nv.preview, nv: true, art: nv.art, year: nv.year });
     });
     if (shuffle && cur !== undefined && tracks[cur]) buildOrder(cur);
-    else order = [...order, ...NV.tracks.map((_, k) => tracks.length - NV.tracks.length + k)];
+    else { const have = new Set(order); tracks.forEach((_, i) => { if (!have.has(i)) { order.push(i); have.add(i); } }); }
     $("#nv-banner-sub").textContent = `${NV.total} faixa(s)`;
     renderAll();
-  } catch { const b = $("#nv-banner"); if (b) b.style.display = "none"; }
+  } catch { const el = $("#nv-banner-sub"); if (el) el.textContent = "Falha ao carregar — toque para tentar"; }
 }
 $("#nv-banner").onclick = () => {
-  if (!NV) return toast("Carregando… ⏳");
+  if (!NV) { toast("Tentando carregar… ⏳"); loadNV(); return; }
   view = "nirvana"; nvAlbum = ""; activePlaylist = null;
   syncNav(); renderAll(); $("#main").scrollTo({ top: 0 });
 };
@@ -915,6 +919,7 @@ $("#btn-chat-current").onclick = () => {
 
 // ---------- atualização automática (APK) ----------
 const UPDATE_BASE = "https://raw.githubusercontent.com/silvauelton392-cloud/PlayGround/main/";
+let updateInfo = null, lastUpdateCheck = 0;
 async function checkUpdate(manual) {
   if (!window.AndroidApp || !window.AndroidApp.versionCode) {
     if (manual) toast("Atualização automática só no app Android 📱");
@@ -924,14 +929,33 @@ async function checkUpdate(manual) {
     const r = await fetch(UPDATE_BASE + "version.json?t=" + Date.now());
     if (!r.ok) throw new Error("http");
     const v = await r.json();
+    lastUpdateCheck = Date.now();
     const cur = window.AndroidApp.versionCode();
     if (v.versionCode > cur && v.apk) {
+      updateInfo = v;
+      $("#update-sub").textContent = `Versão ${v.versionName} disponível — ${v.notes || "novidades"}.`;
+      $("#update-card").hidden = false;
       toast(`Nova versão ${v.versionName} — baixando… ⬇️`);
       window.AndroidApp.downloadUpdate(UPDATE_BASE + v.apk, v.apk);
-    } else if (manual) toast("App já atualizado ✅");
+    } else {
+      updateInfo = null;
+      $("#update-card").hidden = true;
+      if (manual) toast("App já atualizado ✅");
+    }
   } catch { if (manual) toast("Sem conexão para verificar ⚠️"); }
 }
+function triggerUpdateDownload() {
+  if (!updateInfo) return checkUpdate(true);
+  try {
+    window.AndroidApp.downloadUpdate(UPDATE_BASE + updateInfo.apk, updateInfo.apk);
+    toast("Baixando atualização… ⬇️");
+  } catch { toast("Falha ao baixar ⚠️"); }
+}
 $("#btn-update").onclick = () => checkUpdate(true);
+$("#btn-update-go").onclick = triggerUpdateDownload;
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden && Date.now() - lastUpdateCheck > 5 * 60 * 1000) checkUpdate(false);
+});
 
 // ---------- aviso de app atualizado ----------
 async function checkFreshUpdate() {
@@ -981,6 +1005,7 @@ loadCB();
 loadPT();
 loadNV();
 setTimeout(() => checkUpdate(false), 9000);
+setTimeout(() => { if (!updateInfo) checkUpdate(false); }, 60000);
 setTimeout(() => checkFreshUpdate(), 2500);
 (function checkDeviceAccess() {
   if (!window.AndroidLib || !window.AndroidLib.getSongs) return;
