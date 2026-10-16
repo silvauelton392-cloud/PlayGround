@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ThomZap — Bot de Vendas para WhatsApp</title>
+<meta name="description" content="Crie, configure e simule seu bot de vendas para WhatsApp. Catálogo, funil, respostas automáticas e checkout via Pix.">
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --za-900:#052e22; --za-800:#065f46; --za-600:#059669;
+    --za-bright:#22c55e; --za-lime:#a3e635;
+  }
+  *{font-family:'Plus Jakarta Sans','Inter',system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
+  html{scroll-behavior:smooth}
+  body{
+    background:
+      radial-gradient(900px 400px at 10% -5%, #bbf7d0 0%, transparent 60%),
+      radial-gradient(800px 380px at 95% 0%, #fef9c3 0%, transparent 55%),
+      radial-gradient(700px 500px at 50% 110%, #ccfbf1 0%, transparent 60%),
+      #f2f7f3;
+  }
+  ::-webkit-scrollbar{width:9px;height:9px}
+  ::-webkit-scrollbar-thumb{background:linear-gradient(#10b981,#65a30d);border-radius:99px;border:2px solid #f2f7f3}
+  ::-webkit-scrollbar-track{background:transparent}
+
+  /* ---------- sidebar ---------- */
+  .sidebar-bg{
+    background:
+      radial-gradient(340px 220px at 120% -5%, rgba(163,230,53,.28), transparent 60%),
+      radial-gradient(420px 300px at -30% 30%, rgba(45,212,191,.22), transparent 60%),
+      radial-gradient(300px 300px at 50% 110%, rgba(34,197,94,.25), transparent 60%),
+      linear-gradient(172deg,#04231a 0%, #053527 45%, #065f46 100%);
+  }
+  .glass{background:rgba(255,255,255,.09);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.16)}
+  .nav-btn{display:flex;align-items:center;gap:.7rem;width:100%;text-align:left;padding:.68rem .8rem;border-radius:1rem;
+    border:1px solid transparent;color:#d1fae5;font-weight:700;font-size:.86rem;transition:all .22s ease;position:relative}
+  .nav-btn:hover{background:rgba(255,255,255,.1);transform:translateX(3px)}
+  .nav-btn .ico{width:2.1rem;height:2.1rem;border-radius:.8rem;display:grid;place-items:center;font-size:1.05rem;
+    background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.14);flex-shrink:0;transition:all .22s}
+  .nav-active{background:linear-gradient(135deg,#ecfdf5,#d1fae5)!important;color:#052e22!important;
+    box-shadow:0 10px 25px -8px rgba(34,197,94,.55);border-color:rgba(255,255,255,.7)!important}
+  .nav-active .ico{background:#052e22;color:#a3e635;border-color:#052e22}
+
+  /* ---------- cards & buttons ---------- */
+  .card{background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border:1px solid rgba(6,95,70,.09);
+    border-radius:1.4rem;box-shadow:0 1px 2px rgba(4,47,34,.05),0 18px 40px -22px rgba(4,47,34,.22);transition:transform .22s,box-shadow .22s}
+  .card-hover:hover{transform:translateY(-3px);box-shadow:0 2px 4px rgba(4,47,34,.06),0 26px 50px -20px rgba(5,150,105,.35)}
+  .btn-primary{background:linear-gradient(135deg,#22c55e,#059669);color:#03271e;font-weight:800;
+    box-shadow:0 12px 24px -10px rgba(34,197,94,.65),inset 0 1px 0 rgba(255,255,255,.5);transition:all .2s}
+  .btn-primary:hover{filter:brightness(1.05);transform:translateY(-1px);box-shadow:0 16px 30px -10px rgba(34,197,94,.7)}
+  .btn-primary:active{transform:scale(.98)}
+  .btn-dark{background:linear-gradient(135deg,#0b3b2e,#065f46);color:#ecfdf5;font-weight:800;
+    box-shadow:0 12px 24px -12px rgba(6,95,70,.7),inset 0 1px 0 rgba(255,255,255,.18);transition:all .2s}
+  .btn-dark:hover{transform:translateY(-1px);filter:brightness(1.1)}
+  .btn-ghost{background:#fff;border:1.5px solid #d7e5dd;font-weight:800;transition:all .2s}
+  .btn-ghost:hover{border-color:#059669;background:#ecfdf5;transform:translateY(-1px)}
+  .kpi-ico{width:2.7rem;height:2.7rem;border-radius:1rem;display:grid;place-items:center;font-size:1.4rem;color:#fff;
+    box-shadow:0 10px 20px -8px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.4)}
+  .chip{display:inline-flex;align-items:center;gap:.35rem;font-size:.68rem;font-weight:800;padding:.28rem .7rem;border-radius:99px;letter-spacing:.02em}
+
+  .hero{background:
+      radial-gradient(500px 220px at 90% 0%, rgba(163,230,53,.35), transparent 60%),
+      radial-gradient(400px 260px at 5% 110%, rgba(45,212,191,.3), transparent 60%),
+      linear-gradient(120deg,#04231a,#065f46 60%,#047857);
+      position:relative;overflow:hidden}
+  .hero::after{content:'';position:absolute;inset:0;opacity:.14;
+    background-image:radial-gradient(rgba(255,255,255,.9) 1.2px,transparent 1.2px);background-size:22px 22px}
+
+  /* ---------- whatsapp phone ---------- */
+  .phone{border-radius:2.6rem;padding:.65rem;background:linear-gradient(160deg,#1c1917,#44403c 30%,#1c1917);
+    box-shadow:0 40px 80px -30px rgba(4,47,34,.55),0 0 0 1px rgba(255,255,255,.15)}
+  .phone-screen{border-radius:2rem;overflow:hidden;background:#0b141a;position:relative}
+  .island{position:absolute;top:.6rem;left:50%;transform:translateX(-50%);width:7rem;height:1.5rem;background:#000;border-radius:99px;z-index:20;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+  .wa-bg{background-color:#0b141a;
+    background-image:
+      radial-gradient(rgba(37,211,102,.10) 1.2px,transparent 1.2px),
+      radial-gradient(rgba(255,255,255,.05) 1px,transparent 1px);
+    background-size:26px 26px,18px 18px}
+  .chat-bubble-in{background:linear-gradient(180deg,#ffffff,#f1f5f9);color:#111b21;border-radius:.2rem .95rem .95rem .95rem;
+    box-shadow:0 2px 6px rgba(0,0,0,.25);animation:pop .25s ease}
+  .chat-bubble-out{background:linear-gradient(180deg,#e7ffd9,#c9f5b8);color:#0c1f16;border-radius:.95rem .2rem .95rem .95rem;
+    box-shadow:0 2px 6px rgba(0,0,0,.25);animation:pop .25s ease}
+  @keyframes pop{from{opacity:0;transform:translateY(8px) scale(.97)}to{opacity:1;transform:none}}
+  .tick{color:#38bdf8;font-weight:800}
+  .qr-grid{display:grid;grid-template-columns:repeat(21,1fr);gap:0;width:172px;height:172px;background:#fff;padding:10px;border-radius:1rem;
+    box-shadow:inset 0 0 0 1px #e2e8f0}
+
+  /* ---------- misc ---------- */
+  .fade-in{animation:fadeUp .35s cubic-bezier(.2,.8,.3,1)}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  @keyframes typing{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-4px);opacity:1}}
+  .typing-dot{animation:typing 1.1s infinite}
+  .typing-dot:nth-child(2){animation-delay:.15s}.typing-dot:nth-child(3){animation-delay:.3s}
+  .toggle{width:48px;height:27px;border-radius:99px;background:#cbd5e1;position:relative;cursor:pointer;transition:.25s;flex-shrink:0;
+    box-shadow:inset 0 2px 5px rgba(0,0,0,.18)}
+  .toggle.on{background:linear-gradient(135deg,#22c55e,#059669);box-shadow:0 4px 12px -3px rgba(34,197,94,.7)}
+  .toggle::after{content:'';position:absolute;top:3px;left:3px;width:21px;height:21px;background:#fff;border-radius:99px;transition:.25s cubic-bezier(.3,1.4,.5,1);
+    box-shadow:0 2px 5px rgba(0,0,0,.35)}
+  .toggle.on::after{left:24px}
+  input,textarea,select{transition:border .2s,box-shadow .2s!important}
+  input:focus,textarea:focus,select:focus{outline:none;border-color:#10b981!important;box-shadow:0 0 0 4px rgba(16,185,129,.15)!important}
+  .modal-bg{background:rgba(4,35,26,.62);backdrop-filter:blur(8px)}
+  .modal-card{animation:modalIn .3s cubic-bezier(.2,1.2,.35,1)}
+  @keyframes modalIn{from{opacity:0;transform:translateY(18px) scale(.96)}to{opacity:1;transform:none}}
+  .pulse-dot{position:relative}
+  .pulse-dot::after{content:'';position:absolute;inset:-4px;border-radius:99px;border:2px solid currentColor;opacity:.5;animation:ping 1.6s infinite}
+  @keyframes ping{0%{transform:scale(.6);opacity:.7}100%{transform:scale(1.3);opacity:0}}
+  table thead th{letter-spacing:.06em}
+  .prod-emoji{font-size:2.6rem;filter:drop-shadow(0 6px 10px rgba(0,0,0,.18));transition:transform .25s}
+  .card-hover:hover .prod-emoji{transform:scale(1.12) rotate(-4deg)}
+</style>
+</head>
+<body class="text-slate-900 min-h-screen">
+
+<!-- TOPBAR MOBILE -->
+<div class="lg:hidden sticky top-0 z-30 px-4 py-3 flex items-center justify-between text-white" style="background:linear-gradient(135deg,#04231a,#065f46)">
+  <div class="flex items-center gap-2.5 font-extrabold text-lg">
+    <span class="w-9 h-9 rounded-xl grid place-items-center text-xl shadow-lg" style="background:linear-gradient(135deg,#4ade80,#a3e635)">🤖</span>
+    ThomZap
+  </div>
+  <button id="btnMenu" class="glass px-4 py-2 rounded-xl text-sm font-bold">☰ Menu</button>
+</div>
+
+<div class="flex min-h-screen">
+  <!-- SIDEBAR -->
+  <aside id="sidebar" class="hidden lg:flex w-[270px] shrink-0 sidebar-bg text-white flex-col min-h-screen sticky top-0 h-screen z-40">
+    <div class="p-5">
+      <div class="flex items-center gap-3">
+        <div class="relative">
+          <div class="w-12 h-12 rounded-2xl grid place-items-center text-[1.7rem] shadow-xl" style="background:linear-gradient(135deg,#4ade80,#a3e635);box-shadow:0 12px 25px -8px rgba(74,222,128,.7)">🤖</div>
+          <span class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-white grid place-items-center text-[11px] border-2 border-emerald-900">💬</span>
+        </div>
+        <div><div class="font-extrabold text-xl leading-none tracking-tight">ThomZap</div><div class="text-[11px] font-semibold text-emerald-200/90 mt-1 tracking-wide uppercase">Bot de vendas WhatsApp</div></div>
+      </div>
+      <div class="glass mt-5 rounded-2xl px-3.5 py-3 text-sm flex items-center gap-2.5">
+        <span id="connDot" class="pulse-dot w-2.5 h-2.5 rounded-full bg-amber-300 text-amber-300"></span>
+        <span id="connText" class="font-bold text-emerald-50">Modo demonstração</span>
+      </div>
+      <button onclick="openConnect()" class="btn-primary mt-3 w-full py-3 rounded-2xl text-sm">📲 Conectar WhatsApp</button>
+    </div>
+    <nav id="connBadge" class="px-4 space-y-1.5 flex-1">
+      <div class="text-[10px] font-extrabold uppercase tracking-[.18em] text-emerald-200/60 px-2 mb-1">Menu principal</div>
+      <button data-nav="dashboard" class="nav-btn"><span class="ico">📊</span>Dashboard</button>
+      <button data-nav="chat" class="nav-btn"><span class="ico">💬</span>Simulador de conversa</button>
+      <button data-nav="fluxo" class="nav-btn"><span class="ico">🌊</span>Fluxo do bot</button>
+      <button data-nav="produtos" class="nav-btn"><span class="ico">🛍️</span>Produtos</button>
+      <button data-nav="leads" class="nav-btn"><span class="ico">👥</span>Leads & pedidos</button>
+      <button data-nav="config" class="nav-btn"><span class="ico">⚙️</span>Configurações</button>
+    </nav>
+    <div class="p-4">
+      <div class="rounded-2xl p-3.5 text-xs leading-relaxed text-emerald-50" style="background:linear-gradient(135deg,rgba(163,230,53,.22),rgba(255,255,255,.07));border:1px solid rgba(163,230,53,.3)">
+        💡 <b>Dica de ouro:</b> vá em <b>Simulador</b> e digite <b>"oi"</b> para ver o funil vendendo sozinho.
+      </div>
+      <button onclick="resetDemo()" class="mt-2.5 w-full text-center text-[11px] font-semibold text-emerald-200/70 hover:text-white underline underline-offset-2">restaurar dados demo</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="flex-1 min-w-0 p-3 sm:p-6 lg:p-8 max-w-6xl mx-auto w-full">
+
+    <!-- ============ DASHBOARD ============ -->
+    <section id="view-dashboard" class="view">
+      <div class="hero rounded-[1.6rem] p-6 sm:p-8 text-white mb-5 shadow-xl">
+        <div class="relative z-10 flex flex-wrap items-center justify-between gap-4">
+          <div class="max-w-lg">
+            <span class="chip bg-lime-300/20 text-lime-200 border border-lime-200/30">● BOT ONLINE — VENDENDO NO AUTOMÁTICO</span>
+            <h1 class="text-2xl sm:text-[1.9rem] font-extrabold mt-3 leading-tight tracking-tight">Suas vendas no WhatsApp,<br>no piloto automático 🚀</h1>
+            <p class="text-sm text-emerald-100/90 mt-2">Atenda, monte a sacola, cobre no Pix e confirme pedidos — tudo sozinho, 24h por dia.</p>
+          </div>
+          <div class="flex flex-col sm:flex-row gap-2.5">
+            <button onclick="showView('chat')" class="btn-primary px-6 py-3 rounded-2xl text-sm">▶ Testar bot agora</button>
+            <button onclick="showView('fluxo')" class="px-6 py-3 rounded-2xl text-sm font-extrabold bg-white/15 border border-white/25 text-white hover:bg-white/25 transition">Editar fluxo</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4">
+        <div class="card card-hover p-4 sm:p-5"><div class="flex items-center justify-between"><div class="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider">Receita do bot</div><div class="kpi-ico" style="background:linear-gradient(135deg,#22c55e,#047857)">💰</div></div><div id="kpiReceita" class="text-[1.55rem] font-extrabold mt-1 tracking-tight">R$ 0</div><div class="text-[11px] text-emerald-600 font-bold mt-1">▲ via WhatsApp</div></div>
+        <div class="card card-hover p-4 sm:p-5"><div class="flex items-center justify-between"><div class="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider">Pedidos</div><div class="kpi-ico" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">🧾</div></div><div id="kpiPedidos" class="text-[1.55rem] font-extrabold mt-1 tracking-tight">0</div><div id="kpiTicket" class="text-[11px] text-slate-500 mt-1 font-semibold">Ticket médio R$ 0</div></div>
+        <div class="card card-hover p-4 sm:p-5"><div class="flex items-center justify-between"><div class="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider">Conversas</div><div class="kpi-ico" style="background:linear-gradient(135deg,#38bdf8,#6366f1)">💬</div></div><div id="kpiConv" class="text-[1.55rem] font-extrabold mt-1 tracking-tight">0</div><div class="text-[11px] text-slate-500 mt-1 font-semibold">sessões simuladas</div></div>
+        <div class="card card-hover p-4 sm:p-5"><div class="flex items-center justify-between"><div class="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider">Conversão</div><div class="kpi-ico" style="background:linear-gradient(135deg,#a78bfa,#ec4899)">📈</div></div><div id="kpiConvRate" class="text-[1.55rem] font-extrabold mt-1 tracking-tight">0%</div><div class="text-[11px] text-slate-500 mt-1 font-semibold">conversa → pedido</div></div>
+      </div>
+
+      <div class="grid lg:grid-cols-5 gap-3 sm:gap-4">
+        <div class="lg:col-span-3 card p-5 sm:p-6">
+          <div class="flex items-center justify-between"><div class="font-extrabold">Vendas dos últimos 7 dias</div><span class="chip bg-emerald-100 text-emerald-800">tempo real ⚡</span></div>
+          <p class="text-xs text-slate-500 mb-3 mt-1">Atualiza a cada pedido confirmado no simulador.</p>
+          <canvas id="chart" width="600" height="220" class="w-full"></canvas>
+        </div>
+        <div class="lg:col-span-2 card p-5 sm:p-6">
+          <div class="font-extrabold mb-3">Funil do bot 🌪️</div>
+          <div id="funil" class="space-y-3 text-sm"></div>
+          <div class="mt-4 rounded-2xl p-3.5 text-xs leading-relaxed text-emerald-900" style="background:linear-gradient(135deg,#ecfdf5,#d9f99d66);border:1px solid #6ee7b7"><b>Status do bot: <span id="botStatusDash" class="text-emerald-700">ATIVO</span></b><br><span id="botStatusDetail">Respondendo automaticamente no simulador e (quando conectado) no WhatsApp.</span></div>
+        </div>
+      </div>
+      <div class="card p-5 sm:p-6 mt-3 sm:mt-4">
+        <div class="flex items-center justify-between mb-3"><div class="font-extrabold">🧾 Pedidos recentes</div><button onclick="showView('leads')" class="text-sm font-extrabold text-emerald-700 hover:underline">ver todos →</button></div>
+        <div id="recentOrders" class="text-sm"></div>
+      </div>
+    </section>
+
+    <!-- ============ CHAT SIMULADOR ============ -->
+    <section id="view-chat" class="view hidden">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+        <div><h1 class="text-2xl font-extrabold tracking-tight">💬 Simulador WhatsApp</h1><p class="text-sm text-slate-500">Teste o funil como se fosse um cliente real. O bot responde sozinho.</p></div>
+        <div class="flex gap-2 text-sm">
+          <button onclick="novaConversa()" class="btn-ghost px-4 py-2.5 rounded-2xl">＋ Nova conversa</button>
+          <button onclick="demoAuto()" class="btn-dark px-4 py-2.5 rounded-2xl">✨ Demonstração automática</button>
+        </div>
+      </div>
+      <div class="grid lg:grid-cols-[1fr_360px] gap-4 items-start">
+        <div class="mx-auto w-full max-w-[400px]">
+          <div class="phone">
+            <div class="phone-screen" style="height:650px">
+              <div class="island"></div>
+              <div class="text-white px-4 pt-9 pb-3 flex items-center gap-3 shadow-lg relative z-10" style="background:linear-gradient(135deg,#064e3b,#075e54)">
+                <div id="chatAvatar" class="w-11 h-11 rounded-full grid place-items-center text-xl ring-2 ring-lime-300/70" style="background:linear-gradient(135deg,#fef9c3,#a7f3d0)">🏪</div>
+                <div class="flex-1 min-w-0"><div id="chatStoreName" class="font-extrabold text-[15px] truncate tracking-tight">Minha Loja</div><div id="chatStatus" class="text-[11px] text-emerald-200 font-semibold">● online • bot ativo</div></div>
+                <div class="text-lg opacity-90">📹&nbsp;&nbsp;📞</div>
+              </div>
+              <div class="wa-bg flex flex-col" style="height:calc(100% - 92px)">
+                <div class="mx-auto mt-2 mb-1 text-[10px] font-bold text-emerald-100/80 bg-black/30 px-3 py-1 rounded-full">🔒 conversa criptografada • simulação</div>
+                <div id="chatBody" class="flex-1 overflow-y-auto p-3 space-y-2"></div>
+                <div id="quickReplies" class="px-3 pb-1.5 flex flex-wrap gap-1.5"></div>
+                <div class="p-2.5 flex gap-2 items-center" style="background:rgba(0,0,0,.45);backdrop-filter:blur(6px)">
+                  <input id="chatInput" placeholder="Digite como cliente... (ex: oi)" class="flex-1 rounded-full px-4 py-3 text-sm outline-none bg-white/95 shadow-inner" onkeydown="if(event.key==='Enter')enviarCliente()">
+                  <button onclick="enviarCliente()" class="w-11 h-11 rounded-full grid place-items-center text-lg shrink-0 text-emerald-950 font-black" style="background:linear-gradient(135deg,#4ade80,#a3e635);box-shadow:0 8px 18px -6px rgba(74,222,128,.8)">➤</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p class="text-center text-xs text-slate-500 mt-3">↑ Simulador fiel ao WhatsApp. Conecte um número real em <b>Conectar WhatsApp</b>.</p>
+        </div>
+        <div class="space-y-3">
+          <div class="card p-4 sm:p-5" style="background:linear-gradient(180deg,#fff, #f0fdf4)">
+            <div class="font-extrabold text-sm mb-2.5 flex items-center gap-2"><span class="kpi-ico !w-8 !h-8 !text-base" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">🛒</span> Sacola atual (carrinho)</div>
+            <div id="cartBox" class="text-sm space-y-1.5"></div>
+          </div>
+          <div class="card p-4 sm:p-5">
+            <div class="font-extrabold text-sm mb-2.5">⚡ Respostas rápidas <span class="font-semibold text-slate-400">(enviar como cliente)</span></div>
+            <div class="flex flex-wrap gap-1.5 text-xs font-bold">
+              <button onclick="clienteDiz('oi')" class="bg-slate-100 hover:bg-emerald-100 hover:border-emerald-300 border border-slate-200 px-3 py-2 rounded-full transition">oi</button>
+              <button onclick="clienteDiz('quero ver o catálogo')" class="bg-slate-100 hover:bg-emerald-100 hover:border-emerald-300 border border-slate-200 px-3 py-2 rounded-full transition">ver catálogo</button>
+              <button onclick="clienteDiz('ver carrinho')" class="bg-slate-100 hover:bg-emerald-100 hover:border-emerald-300 border border-slate-200 px-3 py-2 rounded-full transition">ver carrinho</button>
+              <button onclick="clienteDiz('finalizar pedido')" class="bg-slate-100 hover:bg-emerald-100 hover:border-emerald-300 border border-slate-200 px-3 py-2 rounded-full transition">finalizar pedido</button>
+              <button onclick="clienteDiz('quero falar com atendente')" class="bg-slate-100 hover:bg-emerald-100 hover:border-emerald-300 border border-slate-200 px-3 py-2 rounded-full transition">falar com atendente</button>
+              <button onclick="clienteDiz('qual o prazo de entrega?')" class="bg-slate-100 hover:bg-emerald-100 hover:border-emerald-300 border border-slate-200 px-3 py-2 rounded-full transition">prazo de entrega?</button>
+            </div>
+          </div>
+          <div class="card p-4 sm:p-5 text-xs leading-relaxed" style="background:linear-gradient(135deg,#eff6ff,#ecfdf5)">
+            <div class="font-extrabold text-sm mb-1">🧠 Como o bot decide?</div>
+            <b>1.</b> Procura <b>gatilhos</b> no <b>Fluxo do bot</b><br><b>2.</b> Detecta <b>nº do produto, carrinho e checkout</b><br><b>3.</b> Usa <b>resposta padrão</b> + fallback inteligente<br><span class="text-slate-500">Edite gatilhos e respostas na aba Fluxo.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FLUXO ============ -->
+    <section id="view-fluxo" class="view hidden">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+        <div><h1 class="text-2xl font-extrabold tracking-tight">🌊 Fluxo do bot</h1><p class="text-sm text-slate-500">Gatilhos → respostas automáticas. O bot procura o gatilho na mensagem do cliente.</p></div>
+        <button onclick="novaRegra()" class="btn-primary text-sm px-5 py-3 rounded-2xl">＋ Nova regra</button>
+      </div>
+      <div class="rounded-2xl p-4 text-sm mb-3 flex gap-2.5 items-start" style="background:linear-gradient(135deg,#fffbeb,#fef9c3);border:1.5px solid #fcd34d"> <span class="text-xl">⚠️</span><span>O funil de vendas (boas-vindas → catálogo → carrinho → Pix → confirmação) é <b>automático</b> e sempre ativo. As regras abaixo são <b>extras</b> para dúvidas frequentes.</span></div>
+      <div id="regrasList" class="space-y-3"></div>
+    </section>
+
+    <!-- ============ PRODUTOS ============ -->
+    <section id="view-produtos" class="view hidden">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+        <div><h1 class="text-2xl font-extrabold tracking-tight">🛍️ Produtos</h1><p class="text-sm text-slate-500">Este catálogo aparece automaticamente no bot quando o cliente pede.</p></div>
+        <button onclick="novoProduto()" class="btn-primary text-sm px-5 py-3 rounded-2xl">＋ Novo produto</button>
+      </div>
+      <div id="prodGrid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4"></div>
+    </section>
+
+    <!-- ============ LEADS ============ -->
+    <section id="view-leads" class="view hidden">
+      <h1 class="text-2xl font-extrabold tracking-tight">👥 Leads & pedidos</h1>
+      <p class="text-sm text-slate-500 mb-4">Capturados automaticamente pelo bot a cada conversa e checkout.</p>
+      <div class="card overflow-x-auto !rounded-3xl overflow-hidden">
+        <table class="w-full text-sm min-w-[640px]">
+          <thead><tr class="text-left text-[11px] uppercase text-slate-500 border-b bg-slate-50/80"><th class="p-4">Cliente / pedido</th><th class="p-4">Itens / valor</th><th class="p-4">Status</th><th class="p-4">Ações</th></tr></thead>
+          <tbody id="leadsBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============ CONFIG ============ -->
+    <section id="view-config" class="view hidden">
+      <h1 class="text-2xl font-extrabold tracking-tight">⚙️ Configurações</h1>
+      <p class="text-sm text-slate-500 mb-4">Personalize a identidade e o comportamento do bot.</p>
+      <div class="grid lg:grid-cols-2 gap-3 sm:gap-4">
+        <div class="card p-5 sm:p-6 space-y-3.5 text-sm">
+          <div class="font-extrabold flex items-center gap-2"><span class="kpi-ico !w-8 !h-8 !text-base" style="background:linear-gradient(135deg,#38bdf8,#6366f1)">🏪</span> Loja & bot</div>
+          <label class="block font-bold text-xs uppercase tracking-wide text-slate-500">Nome da loja<input id="cfgLoja" class="mt-1.5 w-full border-[1.5px] border-slate-200 rounded-2xl px-4 py-2.5 font-semibold normal-case tracking-normal text-slate-800 bg-slate-50/50" oninput="saveCfg()"></label>
+          <label class="block font-bold text-xs uppercase tracking-wide text-slate-500">Nome do bot<input id="cfgBot" class="mt-1.5 w-full border-[1.5px] border-slate-200 rounded-2xl px-4 py-2.5 font-semibold normal-case tracking-normal text-slate-800 bg-slate-50/50" oninput="saveCfg()"></label>
+          <label class="block font-bold text-xs uppercase tracking-wide text-slate-500">Mensagem de boas-vindas<textarea id="cfgWelcome" rows="3" class="mt-1.5 w-full border-[1.5px] border-slate-200 rounded-2xl px-4 py-2.5 font-semibold normal-case tracking-normal text-slate-800 bg-slate-50/50" oninput="saveCfg()"></textarea></label>
+          <label class="block font-bold text-xs uppercase tracking-wide text-slate-500">Chave Pix<input id="cfgPix" class="mt-1.5 w-full border-[1.5px] border-slate-200 rounded-2xl px-4 py-2.5 font-semibold normal-case tracking-normal text-slate-800 bg-slate-50/50" oninput="saveCfg()"></label>
+          <label class="block font-bold text-xs uppercase tracking-wide text-slate-500">Prazo de entrega<input id="cfgPrazo" class="mt-1.5 w-full border-[1.5px] border-slate-200 rounded-2xl px-4 py-2.5 font-semibold normal-case tracking-normal text-slate-800 bg-slate-50/50" oninput="saveCfg()"></label>
+        </div>
+        <div class="space-y-3 sm:space-y-4">
+          <div class="card p-5 sm:p-6 text-sm space-y-3">
+            <div class="font-extrabold">🔌 Conexão WhatsApp real</div>
+            <div class="flex items-center justify-between rounded-2xl px-4 py-3 font-semibold" style="background:#f0fdf4;border:1.5px solid #bbf7d0"><span>Bot ativo no simulador</span><div id="tglBot" class="toggle on" onclick="toggleBot()"></div></div>
+            <div class="flex items-center justify-between rounded-2xl px-4 py-3 font-semibold" style="background:#fffbeb;border:1.5px solid #fde68a"><span>Resposta fora de horário</span><div id="tglFora" class="toggle on" onclick="toggleFora()"></div></div>
+            <button onclick="openConnect()" class="btn-dark w-full py-3.5 rounded-2xl text-sm">📲 Como conectar número real</button>
+            <div class="text-xs text-slate-500 leading-relaxed">Para produção, conecte via <b>Evolution API</b> (QR Code, grátis) ou <b>Meta WhatsApp Cloud API</b> (oficial). O simulador já usa o mesmo motor de fluxo — ao conectar, nada muda no atendimento.</div>
+          </div>
+          <div class="card p-5 sm:p-6 text-sm">
+            <div class="font-extrabold mb-2.5">📤 Exportar / importar</div>
+            <div class="flex gap-2">
+              <button onclick="exportar()" class="btn-ghost flex-1 py-2.5 rounded-2xl text-[13px]">Exportar JSON</button>
+              <button onclick="resetDemo()" class="btn-ghost flex-1 py-2.5 rounded-2xl text-[13px]">Restaurar demo</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="text-center text-xs text-slate-400 py-8 font-semibold">ThomZap 💚 Bot de vendas para WhatsApp • feito para vender no automático</footer>
+  </main>
+</div>
+
+<!-- MODAL CONNECT -->
+<div id="modalConnect" class="hidden fixed inset-0 z-50 modal-bg grid place-items-center p-4">
+  <div class="bg-white rounded-[1.6rem] max-w-md w-full p-6 modal-card shadow-2xl">
+    <div class="flex items-start justify-between"><div class="font-extrabold text-lg tracking-tight">📲 Conectar WhatsApp</div><button onclick="closeConnect()" class="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 grid place-items-center transition">✕</button></div>
+    <div class="flex gap-2 mt-4 text-xs font-extrabold">
+      <button id="tabQr" onclick="tabConnect('qr')" class="flex-1 py-2.5 rounded-2xl bg-emerald-100 text-emerald-800 transition">1 • Via QR Code</button>
+      <button id="tabApi" onclick="tabConnect('api')" class="flex-1 py-2.5 rounded-2xl bg-slate-100 text-slate-500 transition">2 • Via API oficial</button>
+    </div>
+    <div id="paneQr" class="mt-4 text-sm">
+      <div class="flex gap-4 items-center rounded-2xl p-3" style="background:#f0fdf4;border:1.5px solid #bbf7d0">
+        <div class="qr-grid" id="qrFake"></div>
+        <ol class="text-xs space-y-1.5 leading-relaxed list-decimal ml-4 font-medium"><li>Abra o <b>WhatsApp no celular</b></li><li>Toque em <b>⋮ → Aparelhos conectados</b></li><li>Toque em <b>Conectar aparelho</b></li><li>Mire neste QR (demonstração)</li></ol>
+      </div>
+      <div class="mt-3 rounded-2xl p-3.5 text-xs text-emerald-50 leading-relaxed" style="background:linear-gradient(135deg,#052e22,#065f46)">🛠️ <b>Produção com Evolution API</b> (grátis, 5 min):<br><code class="bg-black/60 text-lime-300 px-2 py-1 rounded-lg text-[11px] inline-block mt-1">docker run -p 8080:8080 atendai/evolution-api</code><br><span class="opacity-80">Crie uma instância, leia o QR real e cole o webhook do seu bot. O fluxo deste app é 100% compatível.</span></div>
+      <button onclick="simularConexao()" class="btn-primary mt-3 w-full py-3 rounded-2xl text-sm">Simular leitura do QR</button>
+    </div>
+    <div id="paneApi" class="hidden mt-4 text-sm space-y-2.5">
+      <div class="rounded-2xl p-3.5 text-xs leading-relaxed" style="background:#ecfdf5;border:1.5px solid #6ee7b7"><b>Meta WhatsApp Cloud API (oficial)</b><br>1. Crie um app em developers.facebook.com<br>2. Adicione o produto <b>WhatsApp</b><br>3. Gere <b>token + phone_number_id</b><br>4. Configure o webhook para <code>/webhook</code> com este mesmo motor de fluxo.</div>
+      <label class="block text-xs font-extrabold uppercase tracking-wide text-slate-500">Phone_number_id<input id="apiPhone" placeholder="ex: 1234567890" class="mt-1.5 w-full border-[1.5px] border-slate-200 rounded-2xl px-4 py-2.5 font-semibold normal-case text-slate-800"></label>
+      <label class="block text-xs font-extrabold uppercase tracking-wide text-slate-500">Token (Meta)<input id="apiToken" placeholder="EAAB..." type="password" class="mt-1.5 w-full border-[1.5px] border-slate-200 rounded-2xl px-4 py-2.5 font-semibold normal-case text-slate-800"></label>
+      <button onclick="salvarApi()" class="btn-dark w-full py-3 rounded-2xl text-sm">Salvar e conectar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL GENERICO -->
+<div id="modal" class="hidden fixed inset-0 z-50 modal-bg grid place-items-center p-4">
+  <div class="bg-white rounded-[1.6rem] max-w-md w-full p-6 modal-card shadow-2xl">
+    <div id="modalTitle" class="font-extrabold text-lg mb-3 tracking-tight"></div>
+    <div id="modalBody" class="space-y-2.5 text-sm"></div>
+    <div class="flex gap-2 mt-5"><button onclick="closeModal()" class="btn-ghost flex-1 py-3 rounded-2xl text-sm">Cancelar</button><button id="modalOk" class="btn-primary flex-1 py-3 rounded-2xl text-sm">Salvar</button></div>
+  </div>
+</div>
+
+<script>
+/* ================= ESTADO ================= */
+const LS='zapvendas_v1';
+const money=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const uid=()=>Math.random().toString(36).slice(2,9);
+const nowT=()=>new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+
+function demoState(){
+  return {
+    cfg:{loja:'Minha Loja • Açaí & Cia',bot:'Zapi',welcome:'Olá! 👋 Sou o *{bot}* da *{loja}*. Que bom te ver por aqui! 🎉',pix:'loja@pix.com.br',prazo:'Entrega em 30–50 min na região central 🛵',botAtivo:true,foraHora:true,conectado:false},
+    produtos:[
+      {id:'p1',nome:'Açaí 500ml + 2 toppings',preco:19.9,emoji:'🍧',desc:'Cremoso, com leite ninho, morango, granola...',ativo:true},
+      {id:'p2',nome:'Açaí 700ml completo',preco:26.9,emoji:'🥤',desc:'O queridinho! Até 3 toppings grátis.',ativo:true},
+      {id:'p3',nome:'Combo casal (2x500ml)',preco:34.9,emoji:'💜',desc:'2 açaís 500ml + batata? Não. + toppings!',ativo:true},
+      {id:'p4',nome:'Milkshake Ovomaltine 500ml',preco:16.9,emoji:'🥛',desc:'Cremoso e geladinho.',ativo:true},
+      {id:'p5',nome:'Barca de açaí p/ 3 pessoas',preco:59.9,emoji:'🛶',desc:'Ideal pra família. 1,2L + 5 toppings.',ativo:true},
+      {id:'p6',nome:'Taxa de entrega',preco:4.9,emoji:'🛵',desc:'Região central. Grátis acima de R$ 50.',ativo:true}
+    ],
+    regras:[
+      {id:'r1',titulo:'⏱️ Prazo de entrega',gatilhos:'prazo, entrega, demora, quando chega, tempo',resposta:'Nosso prazo médio é de *30–50 min* na região central 🛵. Pedidos acima de R$ 50 têm *entrega grátis*! Quer ver o cardápio? Digite *cardápio*.',ativo:true},
+      {id:'r2',titulo:'💳 Pagamento',gatilhos:'pagamento, pagar, pix, cartao, cartão, dinheiro, maquininha',resposta:'Aceitamos *Pix* (aprovação imediata ⚡), cartão na entrega e dinheiro. No checkout eu gero tudo pra você. Digite *finalizar* para fechar seu pedido!',ativo:true},
+      {id:'r3',titulo:'🎁 Cupom / desconto',gatilhos:'cupom, desconto, promocao, promoção, oferta',resposta:'Temos sim! 🎉 Use o cupom *BEMVINDO10* e ganhe *10% OFF* no primeiro pedido. Digite *cardápio* para começar!',ativo:true},
+      {id:'r4',titulo:'📍 Endereço / onde fica',gatilhos:'onde, endereço, endereco, localizacao, localização, fica',resposta:'Estamos na *Rua das Palmeiras, 123 — Centro* 📍. Atendemos delivery num raio de 8 km. Me diga seu bairro que eu confirmo a entrega!',ativo:true},
+      {id:'r5',titulo:'🙋 Atendente humano',gatilhos:'humano, atendente, pessoa, ajuda, suporte, falar com',resposta:'Claro! Já chamei um atendente 🧑‍💼. Em instantes alguém fala com você aqui mesmo. Enquanto isso, posso mostrar o *cardápio*?',ativo:true}
+    ],
+    leads:[{id:'seed1',nome:'Cliente demo',tel:'(11) 9 8888-0001',status:'pedido',itens:[{nome:'Açaí 500ml + 2 toppings',qtd:2,preco:19.9}],total:39.8,data:new Date(Date.now()-86400000*2).toLocaleString('pt-BR')}],
+    vendas:[{d:'-6',v:120},{d:'-5',v:210},{d:'-4',v:90},{d:'-3',v:340},{d:'-2',v:180},{d:'-1',v:260},{d:'hoje',v:39.8}],
+    conversas:1, visitasFunil:{visita:12,cardapio:9,carrinho:5,checkout:3,pedido:1},
+    seq:1007
+  };
+}
+let S;
+try{S=JSON.parse(localStorage.getItem(LS))||demoState()}catch{S=demoState()}
+function save(){localStorage.setItem(LS,JSON.stringify(S))}
+
+let cart=[], stage='inicio', clientName='Você', orderDraft=null;
+let msgs=[];
+
+/* ================= NAV ================= */
+function showView(v){
+  document.querySelectorAll('.view').forEach(e=>e.classList.add('hidden'));
+  document.getElementById('view-'+v).classList.remove('hidden');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('nav-active'));
+  document.querySelector(`[data-nav="${v}"]`)?.classList.add('nav-active');
+  const sb=document.getElementById('sidebar');
+  if(window.innerWidth<1024){sb.classList.add('hidden');sb.classList.remove('fixed','flex');}
+  if(v==='dashboard')renderDash();
+  if(v==='fluxo')renderRegras();
+  if(v==='produtos')renderProds();
+  if(v==='leads')renderLeads();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+document.querySelectorAll('.nav-btn').forEach(b=>b.onclick=()=>showView(b.dataset.nav));
+document.getElementById('btnMenu').onclick=()=>{const s=document.getElementById('sidebar');const hidden=s.classList.contains('hidden');if(hidden){s.classList.remove('hidden');s.classList.add('fixed','flex');s.style.left='0';s.style.top='0'}else{s.classList.add('hidden');s.classList.remove('fixed','flex')}};
+
+/* ================= CHAT ================= */
+function pushBot(text, opts={}){
+  msgs.push({from:'bot',text});
+  renderChat();
+  const el=document.getElementById('chatBody');
+  const t=document.createElement('div');
+  t.id='typing'; t.className='flex justify-start';
+  t.innerHTML='<div class="chat-bubble-in px-4 py-3 flex gap-1.5"><span class="typing-dot w-2 h-2 bg-emerald-500 rounded-full inline-block"></span><span class="typing-dot w-2 h-2 bg-emerald-500 rounded-full inline-block"></span><span class="typing-dot w-2 h-2 bg-emerald-500 rounded-full inline-block"></span></div>';
+  el.appendChild(t); el.scrollTop=el.scrollHeight;
+  setTimeout(()=>{document.getElementById('typing')?.remove();msgs[msgs.length-1].shown=true;renderChat(true);if(opts.quick!==undefined)setQuick(opts.quick)},450);
+}
+function pushClient(text){msgs.push({from:'me',text,shown:true});renderChat(true)}
+function renderChat(scroll){
+  const body=document.getElementById('chatBody');
+  body.innerHTML=msgs.filter(m=>m.shown!==false||m.from==='me').map(m=>{
+    if(m.from==='me')return `<div class="flex justify-end"><div class="chat-bubble-out px-3.5 py-2.5 max-w-[86%] text-[13.5px] leading-snug">${esc(m.text)}<div class="text-right text-[10px] opacity-60 mt-1 font-semibold">${nowT()} <span class="tick">✓✓</span></div></div></div>`;
+    return `<div class="flex justify-start"><div class="chat-bubble-in px-3.5 py-2.5 max-w-[86%] text-[13.5px] leading-snug">${fmt(m.text)}<div class="text-right text-[10px] opacity-50 mt-1 font-semibold">${nowT()}</div></div></div>`;
+  }).join('');
+  if(scroll)body.scrollTop=body.scrollHeight;
+  renderCart();
+}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;')}
+function fmt(s){return esc(s).replace(/\*(.+?)\*/g,'<b>$1</b>').replace(/\n/g,'<br>')}
+function setQuick(items){
+  const q=document.getElementById('quickReplies');
+  q.innerHTML=(items||[]).map(x=>`<button onclick="clienteDiz('${x.replace(/'/g,"")}')" class="text-[11px] font-extrabold px-3 py-1.5 rounded-full text-emerald-50 border border-lime-300/40 hover:bg-lime-300 hover:text-emerald-950 transition" style="background:rgba(255,255,255,.14);backdrop-filter:blur(4px)">${x}</button>`).join('');
+}
+function enviarCliente(){const i=document.getElementById('chatInput');const v=i.value.trim();if(!v)return;i.value='';clienteDiz(v)}
+function clienteDiz(text){
+  pushClient(text);
+  S.conversas++; S.visitasFunil.visita++; save();
+  setTimeout(()=>botResponder(text),600);
+}
+function catalogoTxt(){
+  const at=S.produtos.filter(p=>p.ativo);
+  let t='📋 *CARDÁPIO* — '+S.cfg.loja+'\n';
+  at.forEach((p,i)=>{t+=`\n*${i+1}.* ${p.emoji} ${p.nome}\n    ${money(p.preco)} — _${p.desc}_`});
+  t+='\n\nDigite o *número* ou o *nome* do item para adicionar. Ex: *1* ou *quero 2x açaí 500ml*';
+  return t;
+}
+function norm(s){return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')}
+function botResponder(raw){
+  if(!S.cfg.botAtivo){pushBot('⏸️ O bot está pausado no momento. Um atendente vai te responder em breve.');return}
+  const t=raw.trim();
+  const n=norm(t);
+  for(const r of S.regras.filter(r=>r.ativo)){
+    const g=r.gatilhos.split(',').map(x=>norm(x.trim())).filter(Boolean);
+    if(g.some(g=>g&&n.includes(g))){pushBot(r.resposta,{quick:['📋 Ver cardápio','🛒 Ver carrinho','✅ Finalizar pedido']});return}
+  }
+  if(/^(oi|ola|opa|bom dia|boa tarde|boa noite|hello|hi|inicio|começar|comecar|menu)\b/.test(n)||n.length<4){
+    S.visitasFunil.cardapio++;
+    pushBot(S.cfg.welcome.replace('{bot}',S.cfg.bot).replace('{loja}',S.cfg.loja)+'\n\nPosso te ajudar com:\n1️⃣ Ver *cardápio*\n2️⃣ Acompanhar *pedido*\n3️⃣ Falar com *atendente*\n\nÉ só digitar o número ou a palavra! 👇',{quick:['📋 Ver cardápio','🧾 Acompanhar pedido','🙋 Atendente']});
+    stage='menu';return;
+  }
+  if(n.includes('cardapio')||n.includes('catalogo')||n.includes('menu')||n==='1'||n.includes('ver')&&n.includes('produto')){
+    S.visitasFunil.cardapio++;
+    pushBot(catalogoTxt(),{quick:S.produtos.filter(p=>p.ativo).slice(0,3).map((p,i)=>`Quero ${i+1}`)});
+    stage='catalogo';return;
+  }
+  const at=S.produtos.filter(p=>p.ativo);
+  let found=null,qtd=1;
+  const qtdM=n.match(/(\d+)\s*x/); if(qtdM)qtd=Math.min(9,parseInt(qtdM[1]));
+  const numM=t.match(/^\s*(\d+)\s*$/);
+  if(numM){const idx=parseInt(numM[1])-1;if(at[idx])found=at[idx]}
+  if(!found){
+    const queroM=n.match(/quero\s+(\d+)/);
+    if(queroM){const idx=parseInt(queroM[1])-1;if(at[idx])found=at[idx]}
+  }
+  if(!found){
+    found=at.find(p=>{const pn=norm(p.nome);const words=pn.split(/\s+/).filter(w=>w.length>3);return words.some(w=>n.includes(w))&&!n.includes('carrinho')});
+  }
+  if(found&&(stage==='catalogo'||stage==='menu'||n.includes('quero')||numM||n.includes('adiciona')||n.includes('esse'))){
+    const ex=cart.find(c=>c.id===found.id);
+    if(ex)ex.qtd+=qtd;else cart.push({id:found.id,nome:found.nome,preco:found.preco,qtd,emoji:found.emoji});
+    S.visitasFunil.carrinho++;
+    pushBot(`✅ Adicionado: *${qtd}x ${found.emoji} ${found.nome}* (${money(found.preco*qtd)})\n\n${cartResumo()}\n\nQuer *adicionar mais* (digite outro número) ou *finalizar pedido*? 🛒`,{quick:['➕ Continuar comprando','✅ Finalizar pedido','🛒 Ver carrinho']});
+    stage='carrinho';return;
+  }
+  if(n.includes('carrinho')||n.includes('sacola')||n.includes('cesta')){
+    pushBot(cart.length?('🛒 *Sua sacola:*\n\n'+cartResumo()+'\n\nDigite *finalizar* para fechar ou o *número* de outro item para adicionar.'):'🛒 Sua sacola está vazia. Digite *cardápio* para ver as delícias! 😋',{quick:['📋 Ver cardápio','✅ Finalizar pedido']});
+    return;
+  }
+  if(n.includes('remover')||n.includes('tirar')||n.includes('limpar')){
+    if(n.includes('limpar')||n.includes('tudo')){cart=[];pushBot('🧹 Sacola esvaziada. Digite *cardápio* para recomeçar!')}
+    else{cart.pop();pushBot('➖ Removi o último item.\n\n'+(cart.length?cartResumo():'Sacola vazia.'))}
+    return;
+  }
+  if(n.includes('finaliz')||n.includes('checkout')||n.includes('fechar')||n.includes('pagar')||n.includes('pedido')&&stage==='carrinho'||n.match(/\b2\b/)&&stage==='menu'){
+    if(!cart.length){pushBot('Ops! Sua sacola está vazia 🛒. Digite *cardápio* para escolher primeiro!');return}
+    S.visitasFunil.checkout++;
+    const total=cartTotal();
+    orderDraft={itens:JSON.parse(JSON.stringify(cart)),total};
+    stage='nome';
+    pushBot(`🎉 *Vamos fechar seu pedido!* Total: *${money(total)}*\n\nQual seu *nome* para identificar o pedido?`,{quick:[]});
+    return;
+  }
+  if(stage==='nome'){
+    clientName=t.split(' ').slice(0,2).join(' ');
+    stage='pagto';
+    pushBot(`Prazer, *${clientName}*! 🤝\n\nComo prefere pagar?\n\n⚡ *Pix* — aprovação imediata\n💳 *Cartão* — na entrega\n💵 *Dinheiro* — na entrega\n\nDigite: *pix*, *cartão* ou *dinheiro*`,{quick:['⚡ Pix','💳 Cartão','💵 Dinheiro']});
+    return;
+  }
+  if(stage==='pagto'){
+    orderDraft.pagto=/pix/.test(n)?'Pix':/cart/.test(n)?'Cartão':'Dinheiro';
+    if(orderDraft.pagto==='Pix'){
+      stage='aguardaPix';
+      pushBot(`⚡ *Pagamento via Pix* — ${money(orderDraft.total)}\n\nChave: *${S.cfg.pix}*\n\n1. Copie a chave\n2. Pague no app do banco\n3. Digite *paguei* aqui ✅\n\nAssim que confirmar, já mando pra cozinha! 👨‍🍳`,{quick:['✅ Já paguei','💳 Trocar p/ cartão']});
+    }else{
+      confirmarPedido();
+    }
+    return;
+  }
+  if(stage==='aguardaPix'&&(n.includes('paguei')||n.includes('pago')||n.includes('confirma')||n.includes('ok')||n.includes('pronto'))){
+    confirmarPedido();return;
+  }
+  if(n.includes('acompanhar')||n.includes('status')||n.includes('meu pedido')||n.includes('rastre')){
+    const last=S.leads[0];
+    pushBot(last?`📦 *Último pedido* (${last.id.toUpperCase()}):\n${last.itens.map(i=>`• ${i.qtd}x ${i.nome}`).join('\n')}\nTotal *${money(last.total)}* — Status: *${statusLabel(last.status)}*\n\n${S.cfg.prazo}`:'Você ainda não tem pedidos por aqui. Digite *cardápio* e faça o primeiro! 😋');
+    return;
+  }
+  if(n.includes('atendente')||n.includes('humano')||n==='3'){
+    pushBot('🧑‍💼 Entendido! Transfiri para um atendente humano. Tempo médio de espera: *2 min*. Enquanto isso, sua sacola está salva! 🛒');
+    upsertLead('atendimento');return;
+  }
+  if(n.includes('obrigad')||n.includes('valeu')||n.includes('tchau')){
+    pushBot(`Por nada, ${clientName}! 🥰 Volte sempre à *${S.cfg.loja}*. Digite *cardápio* quando bater a vontade! 😋`);
+    return;
+  }
+  pushBot(`Hmm, não entendi bem 🤔. Mas posso te ajudar com:\n\n📋 Digite *cardápio* para ver produtos\n🛒 *carrinho* para ver sua sacola\n✅ *finalizar* para fechar o pedido\n🙋 *atendente* para falar com humano`,{quick:['📋 Ver cardápio','🛒 Ver carrinho','🙋 Atendente']});
+}
+function cartTotal(){return cart.reduce((s,c)=>s+c.preco*c.qtd,0)}
+function cartResumo(){return cart.map(c=>`• ${c.qtd}x ${c.emoji} ${c.nome} — ${money(c.preco*c.qtd)}`).join('\n')+`\n\n*Total: ${money(cartTotal())}*`}
+function renderCart(){
+  const b=document.getElementById('cartBox');
+  b.innerHTML=cart.length?cart.map((c)=>`<div class="flex justify-between gap-2 rounded-xl px-3 py-2 font-semibold" style="background:#f0fdf4;border:1.5px solid #bbf7d0"><span>${c.emoji} ${c.qtd}x ${c.nome}</span><span class="font-extrabold text-emerald-800">${money(c.preco*c.qtd)}</span></div>`).join('')+`<div class="flex justify-between font-extrabold pt-1.5 px-1 text-[15px]"><span>Total</span><span class="text-emerald-700">${money(cartTotal())}</span></div>`:'<span class="text-slate-400 font-medium">Vazia — adicione itens pelo simulador 🛒</span>';
+}
+function confirmarPedido(){
+  const total=orderDraft?orderDraft.total:cartTotal();
+  const itens=orderDraft?orderDraft.itens:cart;
+  const pagto=orderDraft?.pagto||'Pix';
+  const id='ped'+(S.seq++);
+  S.leads.unshift({id,nome:clientName,tel:'(11) 9 9999-'+String(Math.floor(Math.random()*9000)+1000),status:'pedido',itens:JSON.parse(JSON.stringify(itens)),total,pagto,data:new Date().toLocaleString('pt-BR')});
+  S.vendas[S.vendas.length-1].v+=total;
+  S.visitasFunil.pedido++;
+  save();
+  cart=[];orderDraft=null;stage='fim';
+  pushBot(`✅ *Pedido ${id.toUpperCase()} confirmado!* 🎉\n\n${itens.map(i=>`• ${i.qtd}x ${i.nome}`).join('\n')}\nTotal *${money(total)}* via *${pagto}*\n\n${S.cfg.prazo}\n\nObrigado por comprar na *${S.cfg.loja}*! 🥰 Digite *cardápio* para novo pedido.`,{quick:['📋 Novo pedido','🧾 Acompanhar pedido']});
+  renderDash();
+}
+function upsertLead(status){
+  S.leads.unshift({id:'lead'+uid(),nome:clientName,tel:'(11) 9 9999-'+String(Math.floor(Math.random()*9000)+1000),status,itens:[],total:0,data:new Date().toLocaleString('pt-BR')});
+  save();
+}
+function novaConversa(){
+  msgs=[];cart=[];stage='inicio';clientName='Você';setQuick([]);
+  renderChat();
+  setTimeout(()=>pushBot(S.cfg.welcome.replace('{bot}',S.cfg.bot).replace('{loja}',S.cfg.loja)+'\n\nDigite *cardápio* para ver produtos ou *oi* para o menu 👇',{quick:['📋 Ver cardápio','🧾 Acompanhar pedido']}),400);
+}
+async function demoAuto(){
+  novaConversa();
+  await new Promise(r=>setTimeout(r,1200));
+  const seq=['oi','1','quero 2x o número 2','ver carrinho','finalizar pedido','Maria Silva','pix','paguei'];
+  for(const m of seq){clienteDiz(m);await new Promise(r=>setTimeout(r,2200))}
+}
+
+/* ================= DASHBOARD ================= */
+function renderDash(){
+  const rec=S.leads.filter(l=>l.status==='pedido'||l.status==='entregue').reduce((s,l)=>s+l.total,0);
+  const ped=S.leads.filter(l=>l.status==='pedido'||l.status==='entregue').length;
+  document.getElementById('kpiReceita').textContent=money(rec);
+  document.getElementById('kpiPedidos').textContent=ped;
+  document.getElementById('kpiTicket').textContent='Ticket médio '+(money(ped?rec/ped:0));
+  document.getElementById('kpiConv').textContent=S.conversas;
+  document.getElementById('kpiConvRate').textContent=(S.conversas?Math.round(100*ped/Math.max(1,S.conversas)):0)+'%';
+  const f=S.visitasFunil;
+  const max=Math.max(1,f.visita);
+  const rows=[['👁️ Visitas',f.visita,'#38bdf8'],['📋 Viram cardápio',f.cardapio,'#a78bfa'],['🛒 Montaram sacola',f.carrinho,'#f59e0b'],['✅ Foram ao checkout',f.checkout,'#22c55e'],['🎉 Pedidos',f.pedido,'#059669']];
+  document.getElementById('funil').innerHTML=rows.map(([l,v,c])=>`<div><div class="flex justify-between text-xs font-extrabold mb-1.5"><span>${l}</span><span class="bg-slate-100 px-2 py-0.5 rounded-full">${v}</span></div><div class="h-3 bg-slate-100 rounded-full overflow-hidden"><div class="h-full rounded-full transition-all" style="width:${Math.round(100*v/max)}%;background:linear-gradient(90deg,${c},${c}cc)"></div></div></div>`).join('');
+  const c=document.getElementById('chart');const ctx=c.getContext('2d');
+  const W=c.width,H=c.height;ctx.clearRect(0,0,W,H);
+  const vals=S.vendas.map(x=>x.v);const mx=Math.max(10,...vals);
+  const bw=W/vals.length;
+  ctx.font='bold 11px Plus Jakarta Sans';
+  vals.forEach((v,i)=>{
+    const h=(H-44)*v/mx;const x=i*bw+8,y=H-26-h;
+    const g=ctx.createLinearGradient(0,y,0,y+h);
+    if(i===vals.length-1){g.addColorStop(0,'#a3e635');g.addColorStop(1,'#059669')}else{g.addColorStop(0,'#6ee7b7');g.addColorStop(1,'#059669')}
+    ctx.fillStyle=g;
+    ctx.beginPath();ctx.roundRect(x,y,bw-16,h,[7,7,3,3]);ctx.fill();
+    ctx.fillStyle='#052e22';ctx.fillText(money(v).replace(',00',''),x,y-5);
+    ctx.fillStyle='#94a3b8';ctx.fillText(i===vals.length-1?'hoje':'-'+(vals.length-1-i)+'d',x+4,H-9);
+  });
+  const ro=document.getElementById('recentOrders');
+  ro.innerHTML=S.leads.slice(0,4).map(l=>`<div class="flex items-center justify-between gap-3 border-b last:border-0 py-3 hover:bg-emerald-50/50 px-2 -mx-2 rounded-xl transition"><div class="min-w-0"><b class="text-emerald-900">${l.id.toUpperCase()}</b> • <b>${esc(l.nome)}</b> <span class="text-slate-400 text-xs">• ${l.data}</span><div class="text-xs text-slate-500 truncate">${(l.itens||[]).map(i=>i.qtd+'x '+i.nome).join(', ')||'—'}</div></div><div class="text-right shrink-0"><div class="font-extrabold text-[15px]">${money(l.total||0)}</div><span class="chip mt-1 ${badge(l.status)}">${statusLabel(l.status)}</span></div></div>`).join('')||'<span class="text-slate-400">Nenhum pedido ainda.</span>';
+  document.getElementById('botStatusDash').textContent=S.cfg.botAtivo?'ATIVO':'PAUSADO';
+}
+function badge(s){return s==='pedido'?'bg-emerald-100 text-emerald-800':s==='entregue'?'bg-blue-100 text-blue-800':s==='atendimento'?'bg-amber-100 text-amber-800':'bg-slate-100 text-slate-600'}
+function statusLabel(s){return {novo:'Novo',atendimento:'Atendimento',pedido:'Pedido confirmado',entregue:'Entregue',cancelado:'Cancelado'}[s]||s}
+
+/* ================= FLUXO ================= */
+function renderRegras(){
+  const l=document.getElementById('regrasList');
+  l.innerHTML=S.regras.map(r=>`<div class="card card-hover p-4 sm:p-5 fade-in ${r.ativo?'':'opacity-60 grayscale-[.4]'}">
+    <div class="flex items-start justify-between gap-3">
+      <div class="font-extrabold tracking-tight">${esc(r.titulo)}</div>
+      <div class="flex items-center gap-1.5 shrink-0"><div class="toggle ${r.ativo?'on':''}" onclick="toggleRegra('${r.id}')"></div>
+      <button onclick="editarRegra('${r.id}')" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-emerald-100 grid place-items-center transition" title="Editar">✏️</button>
+      <button onclick="delRegra('${r.id}')" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-red-100 grid place-items-center transition" title="Excluir">🗑️</button></div>
+    </div>
+    <div class="text-xs mt-2.5"><span class="font-extrabold text-emerald-700 uppercase tracking-wide">⚡ Gatilhos:</span> <code class="bg-emerald-50 border border-emerald-200 px-2 py-1 rounded-lg font-semibold text-emerald-900">${esc(r.gatilhos)}</code></div>
+    <div class="text-sm mt-2 rounded-2xl p-3 font-medium" style="background:#f8fafc;border:1.5px solid #e2e8f0">🤖 ${fmt(r.resposta)}</div>
+  </div>`).join('')||'<div class="text-slate-400 text-sm">Nenhuma regra.</div>';
+}
+function toggleRegra(id){const r=S.regras.find(x=>x.id===id);r.ativo=!r.ativo;save();renderRegras()}
+function delRegra(id){if(!confirm('Excluir esta regra?'))return;S.regras=S.regras.filter(x=>x.id!==id);save();renderRegras()}
+function novaRegra(){openModal('＋ Nova regra',`
+  <label class="block font-bold text-xs uppercase tracking-wide text-slate-500">Título<input id="mTitulo" class="mt-1.5 w-full border-[1.5px] border-slate-200 rounded-2xl px-4 py-2.5 font-semibold normal-case text-slate-800" placeholder="Ex: 🕐 Horário de funcionamento"></label>
+  <label class="block font-bold text-xs uppercase tracking-wide text-slate-500">Gatilhos (separados por vírgula)<input id="mGat" class="mt-1.5 w-full border-[1.5px] border-slate-200 rounded-2xl px-4 py-2.5 font-semibold normal-case text-slate-800" placeholder="Ex: horario, abre, fecha, funciona"></label>
+  <label class="block font-bold text-xs uppercase tracking-wide text-slate-500">Resposta<textarea id="mResp" rows="3" class="mt-1.5 w-full border-[1.5px] border-slate-200 rounded-2xl px-4 py-2.5 font-semibold normal-case text-slate-800" placeholder="O que o bot responde..."></textarea></label>`,
+  ()=>{const t=document.getElementById('mTitulo').value||'Nova regra';const g=document.getElementById('mGat').value;const r=document.getElementById('mResp').value;if(!g||!r){alert('Preencha gatilhos e resposta.');return false}S.regras.push({id:uid(),titulo:t,gatilhos:g,resposta:r,ativo:true});save();renderRegras()})}
+function editarRegra(id){const r=S.regras.find(x=>x.id===id);openModal('✏️ Editar regra',`
+  <label class="block font-bold text-xs uppercase tracking-wide text-slate-500">Título<input id="mTitulo" value="${esc(r.titulo)}" class="mt-1.5 w-full border-[1.5px] border-slate-200 rounded-2xl px-4 py-2.5 font-semibold normal-case text-slate-800"></label>
+  <label class="block font-bold text-xs uppercase tracking-wide text-slate-500">Gatilhos<input id="mGat" value="${esc(r.gatilhos)}" class="mt-1.5 w-full border-[1.5px] border-slate-200 rounded-2xl px-4 py-2.5 font-semibold normal-case text-slate-800"></label>
+  <label class="block font-bold text-xs uppercase tracking-wide text-slate-500">Resposta<textarea id="mResp" rows="4" class="mt-1.5 w-full border-[1.5px] border-slate-200 rounded-2xl px-4 py-2.5 font-semibold normal-case text-slate-800">${esc(r.resposta)}</textarea></label>`,
+  ()=>{r.titulo=document.getElementById('mTitulo').value;r.gatilhos=document.getElementById('mGat').value;r.resposta=document.getElementById('mResp').value;save();renderRegras()})}
+
+/* ================= PRODUTOS ================= */
+function renderProds(){
+  document.getElementById('prodGrid').innerHTML=S.produtos.map((p,i)=>`<div class="card card-hover p-5 fade-in ${p.ativo?'':'opacity-60'}">
+    <div class="flex items-start justify-between"><div class="prod-emoji">${p.emoji}</div><div class="toggle ${p.ativo?'on':''}" onclick="toggleProd('${p.id}')"></div></div>
+    <div class="font-extrabold mt-2 tracking-tight"><span class="text-xs font-extrabold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full mr-1.5">#${i+1}</span>${esc(p.nome)}</div>
+    <div class="text-xs text-slate-500 mt-1 font-medium">${esc(p.desc)}</div>
+    <div class="flex items-center justify-between mt-3 pt-3" style="border-top:1.5px dashed #e2e8f0"><div class="font-extrabold text-emerald-700 text-lg tracking-tight">${money(p.preco)}</div>
+    <div class="flex gap-1.5"><button onclick="editarProd('${p.id}')" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-emerald-100 grid place-items-center transition">✏️</button><button onclick="delProd('${p.id}')" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-red-100 grid place-items-center transition">🗑️</button></div></div>
+    <button onclick="venderProd('${p.id}')" class="btn-primary w-full mt-3 py-2.5 rounded-2xl text-xs">＋ Vender no chat</button>
+  </div>`).join('');
+}
+function toggleProd(id){const p=S.produtos.find(x=>x.id===id);p.ativo=!p.ativo;save();renderProds()}
+function delProd(id){if(!confirm('Excluir produto?'))return;S.produtos=S.produtos.filter(x=>x.id!==id);save();renderProds()}
+function venderProd(id){const p=S.produtos.find(x=>x.id===id);showView('chat');clienteDiz('quero '+p.nome)}
+function novoProduto(){openModal('＋ Novo produto',`
+  <label class="block font-bold text-xs uppercase tracking-wide text-slate-500">Nome<input id="mNome" class="mt-1.5 w-full border-[1.5px] border-slate-200 rounded-2xl px-4 py-2.5 font-semibold normal-case text-slate-800" placeholder="Ex: Açaí 500ml"></label>
+  <div class="grid grid-cols-2 gap-2"><label class="block font-bold text-xs uppercase tracking-wide text-slate-500">Preço (R$)<input id="mPreco" type="number" step="0.01" class="mt-1.5 w-full border-[1.5px] border-slate-200 rounded-2xl px-4 py-2.5 font-semibold text-slate-800" placeholder="19.90"></label>
+  <label class="block font-bold text-xs uppercase tracking-wide text-slate-500">Emoji<input id="mEmoji" class="mt-1.5 w-full border-[1.5px] border-slate-200 rounded-2xl px-4 py-2.5 text-slate-800" placeholder="🍧"></label></div>
+  <label class="block font-bold text-xs uppercase tracking-wide text-slate-500">Descrição<input id="mDesc" class="mt-1.5 w-full border-[1.5px] border-slate-200 rounded-2xl px-4 py-2.5 font-semibold normal-case text-slate-800" placeholder="Descreva..."></label>`,
+  ()=>{S.produtos.push({id:uid(),nome:document.getElementById('mNome').value||'Novo produto',preco:parseFloat(document.getElementById('mPreco').value)||9.9,emoji:document.getElementById('mEmoji').value||'📦',desc:document.getElementById('mDesc').value||'',ativo:true});save();renderProds()})}
+function editarProd(id){const p=S.produtos.find(x=>x.id===id);openModal('✏️ Editar produto',`
+  <label class="block font-bold text-xs uppercase tracking-wide text-slate-500">Nome<input id="mNome" value="${esc(p.nome)}" class="mt-1.5 w-full border-[1.5px] border-slate-200 rounded-2xl px-4 py-2.5 font-semibold normal-case text-slate-800"></label>
+  <div class="grid grid-cols-2 gap-2"><label class="block font-bold text-xs uppercase tracking-wide text-slate-500">Preço<input id="mPreco" type="number" step="0.01" value="${p.preco}" class="mt-1.5 w-full border-[1.5px] border-slate-200 rounded-2xl px-4 py-2.5 font-semibold text-slate-800"></label>
+  <label class="block font-bold text-xs uppercase tracking-wide text-slate-500">Emoji<input id="mEmoji" value="${p.emoji}" class="mt-1.5 w-full border-[1.5px] border-slate-200 rounded-2xl px-4 py-2.5 text-slate-800"></label></div>
+  <label class="block font-bold text-xs uppercase tracking-wide text-slate-500">Descrição<input id="mDesc" value="${esc(p.desc)}" class="mt-1.5 w-full border-[1.5px] border-slate-200 rounded-2xl px-4 py-2.5 font-semibold normal-case text-slate-800"></label>`,
+  ()=>{p.nome=document.getElementById('mNome').value;p.preco=parseFloat(document.getElementById('mPreco').value)||p.preco;p.emoji=document.getElementById('mEmoji').value;p.desc=document.getElementById('mDesc').value;save();renderProds()})}
+
+/* ================= LEADS ================= */
+function renderLeads(){
+  document.getElementById('leadsBody').innerHTML=S.leads.map(l=>`<tr class="border-b last:border-0 hover:bg-emerald-50/50 transition">
+    <td class="p-4"><b class="text-emerald-900">${l.id.toUpperCase()}</b><br><b>${esc(l.nome)}</b><br><span class="text-xs text-slate-500">${l.tel} • ${l.data}</span></td>
+    <td class="p-4 text-xs font-medium">${(l.itens||[]).map(i=>i.qtd+'x '+esc(i.nome)).join('<br>')||'—'}<div class="font-extrabold text-sm text-emerald-700 mt-0.5">${money(l.total||0)}</div></td>
+    <td class="p-4"><span class="chip ${badge(l.status)}">${statusLabel(l.status)}</span></td>
+    <td class="p-4"><select onchange="setStatus('${l.id}',this.value)" class="border-[1.5px] border-slate-200 rounded-xl px-2.5 py-1.5 text-xs font-bold bg-white">
+      ${['novo','atendimento','pedido','entregue','cancelado'].map(s=>`<option value="${s}" ${l.status===s?'selected':''}>${statusLabel(s)}</option>`).join('')}
+    </select></td></tr>`).join('')||'<tr><td colspan="4" class="p-6 text-center text-slate-400">Nenhum lead ainda. Teste o simulador!</td></tr>';
+}
+function setStatus(id,st){S.leads.find(l=>l.id===id).status=st;save();renderLeads();renderDash()}
+
+/* ================= CONFIG ================= */
+function loadCfg(){document.getElementById('cfgLoja').value=S.cfg.loja;document.getElementById('cfgBot').value=S.cfg.bot;document.getElementById('cfgWelcome').value=S.cfg.welcome;document.getElementById('cfgPix').value=S.cfg.pix;document.getElementById('cfgPrazo').value=S.cfg.prazo;document.getElementById('chatStoreName').textContent=S.cfg.loja;updToggles()}
+function saveCfg(){S.cfg.loja=document.getElementById('cfgLoja').value;S.cfg.bot=document.getElementById('cfgBot').value;S.cfg.welcome=document.getElementById('cfgWelcome').value;S.cfg.pix=document.getElementById('cfgPix').value;S.cfg.prazo=document.getElementById('cfgPrazo').value;document.getElementById('chatStoreName').textContent=S.cfg.loja;save()}
+function toggleBot(){S.cfg.botAtivo=!S.cfg.botAtivo;save();updToggles()}
+function toggleFora(){S.cfg.foraHora=!S.cfg.foraHora;save();updToggles()}
+function updToggles(){
+  document.getElementById('tglBot').className='toggle'+(S.cfg.botAtivo?' on':'');
+  document.getElementById('tglFora').className='toggle'+(S.cfg.foraHora?' on':'');
+  document.getElementById('chatStatus').textContent=S.cfg.botAtivo?'● online • bot ativo':'⏸ bot pausado';
+  const d=document.getElementById('connDot');
+  d.className='w-2.5 h-2.5 rounded-full '+((S.cfg.conectado?'bg-lime-300 text-lime-300':'bg-amber-300 text-amber-300')+' pulse-dot');
+  document.getElementById('connText').textContent=S.cfg.conectado?'WhatsApp conectado':'Modo demonstração';
+}
+function exportar(){const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='thomzap-backup.json';a.click()}
+function resetDemo(){if(!confirm('Restaurar dados de demonstração?'))return;S=demoState();save();loadCfg();renderDash();renderRegras();renderProds();renderLeads();novaConversa()}
+
+/* ================= MODAIS ================= */
+let modalCb=null;
+function openModal(title,html,cb){document.getElementById('modalTitle').textContent=title;document.getElementById('modalBody').innerHTML=html;modalCb=cb;document.getElementById('modal').classList.remove('hidden');document.getElementById('modalOk').onclick=()=>{if(modalCb){const r=modalCb();if(r===false)return}closeModal()}}
+function closeModal(){document.getElementById('modal').classList.add('hidden')}
+function openConnect(){document.getElementById('modalConnect').classList.remove('hidden');drawQr()}
+function closeConnect(){document.getElementById('modalConnect').classList.add('hidden')}
+function tabConnect(t){document.getElementById('paneQr').classList.toggle('hidden',t!=='qr');document.getElementById('paneApi').classList.toggle('hidden',t!=='api');document.getElementById('tabQr').className='flex-1 py-2.5 rounded-2xl transition '+(t==='qr'?'bg-emerald-100 text-emerald-800':'bg-slate-100 text-slate-500');document.getElementById('tabApi').className='flex-1 py-2.5 rounded-2xl transition '+(t==='api'?'bg-emerald-100 text-emerald-800':'bg-slate-100 text-slate-500')}
+function drawQr(){const q=document.getElementById('qrFake');q.innerHTML='';for(let i=0;i<441;i++){const d=document.createElement('div');const edge=(i%21<7&&Math.floor(i/21)<7)||(i%21>13&&Math.floor(i/21)<7)||(i%21<7&&Math.floor(i/21)>13);d.style.background=(edge?(i%3!==0):Math.random()>0.5)?'#0f172a':'#fff';q.appendChild(d)}}
+function simularConexao(){S.cfg.conectado=true;save();updToggles();closeConnect();alert('✅ WhatsApp conectado (simulação)! O mesmo fluxo do simulador agora atenderia seu número real.')}
+function salvarApi(){S.cfg.conectado=true;save();updToggles();closeConnect();alert('✅ API configurada! Webhook pronto para receber mensagens reais.')}
+
+/* ================= INIT ================= */
+document.getElementById('chatAvatar').textContent='🏪';
+loadCfg();renderDash();renderRegras();renderProds();renderLeads();renderCart();
+showView('dashboard');novaConversa();
+document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
+document.getElementById('modalConnect').addEventListener('click',e=>{if(e.target.id==='modalConnect')closeConnect()});
+</script>
+</body>
+</html>
