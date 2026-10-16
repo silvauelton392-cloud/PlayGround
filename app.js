@@ -843,11 +843,8 @@ function sendRequest() {
   if (!text) return;
   chatPush(`🎵 Pedido: ${text}`);
   inp.value = "";
-  const num = waNumber();
-  if (!num) {
-    chatPush("⚙️ Toque na engrenagem acima e cadastre o WhatsApp que recebe os pedidos.", false);
-    return;
-  }
+  let num = waNumber();
+  if (!num) { chat.wa = DEFAULT_WA; chatStore.save(chat); renderChat(); num = DEFAULT_WA; }
   window.open(`https://wa.me/${num}?text=${encodeURIComponent("🎵 Pedido Thom Songs\n🎶 " + text)}`, "_blank");
   chatPush("✅ Pedido enviado! Valeu! 🙌", false);
 }
@@ -859,13 +856,6 @@ $("#btn-chat-current").onclick = () => {
   const t = curTrack();
   if (t) $("#chat-text").value = `${t.artist} - ${t.title}`;
   try { $("#chat-text").focus(); } catch {}
-};
-$("#btn-chat-cfg").onclick = () => {
-  const v = prompt("WhatsApp que recebe os pedidos (só números, com país+DDD. Ex: 5511999998888):", waNumber());
-  if (v == null) return;
-  chat.wa = v.replace(/\D/g, "");
-  chatStore.save(chat); renderChat();
-  toast(chat.wa ? "WhatsApp de pedidos salvo ✅" : "WhatsApp removido");
 };
 
 // ---------- atualização automática (APK) ----------
