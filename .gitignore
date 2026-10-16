@@ -22,6 +22,8 @@ android/build/
 android/.gradle/
 android/app/build/
 android/local.properties
+# Assets gerados pelo build-apk.sh (recriados a cada build)
+android/app/src/main/assets/www/
 # Chave de assinatura própria — NÃO versionar (guarde backup!)
 *.keystore
 *.jks

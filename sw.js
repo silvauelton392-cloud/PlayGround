@@ -1,6 +1,6 @@
 /* Thom Songs service worker — cache offline do player */
 const CACHE = "thomsongs-v2";
-const ASSETS = ["./", "./index.html", "./styles.css", "./app.js", "./nxzero.json", "./cbjr.json", "./manifest.webmanifest"];
+const ASSETS = ["./", "./index.html", "./styles.css", "./app.js", "./nxzero.json", "./cbjr.json", "./pitty.json", "./manifest.webmanifest"];
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)).then(() => self.skipWaiting()));
 });
