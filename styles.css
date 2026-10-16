@@ -168,6 +168,10 @@ body{margin:0;font-family:var(--font);background:#04050c;color:var(--txt);overfl
 .chat-quick button{width:100%;background:var(--card);border:1px dashed var(--acc2);color:var(--txt);border-radius:12px;padding:11px;font:700 13px var(--font);cursor:pointer}
 .chat-input{display:flex;gap:8px;padding:8px 14px 12px}
 .chat-input input{flex:1;min-width:0;background:var(--card);border:1px solid var(--border);color:var(--txt);border-radius:24px;padding:13px 16px;font:500 14px var(--font);outline:0}
+.chat-input .icon-btn.rec{background:#ef4444;border-color:transparent;color:#fff;animation:recpulse 1s ease-in-out infinite}
+@keyframes recpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+.bubble audio{width:100%;min-width:190px;outline:0;margin:2px 0}
+.bubble .mini-btn{margin-top:6px;width:100%}
 #miniplayer{position:relative;display:flex;align-items:center;gap:10px;margin:0 12px;padding:9px 10px;background:rgba(20,24,48,.92);border:1px solid var(--border);border-radius:18px;backdrop-filter:blur(16px);cursor:pointer;box-shadow:0 -8px 30px rgba(0,0,0,.35)}
 [data-theme="light"] #miniplayer{background:rgba(255,255,255,.94)}
 #mini-progress{position:absolute;top:-1px;left:14px;right:14px;height:3px;background:rgba(255,255,255,.14);border-radius:3px;overflow:hidden}

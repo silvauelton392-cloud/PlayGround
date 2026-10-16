@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -15,6 +16,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
+import android.webkit.PermissionRequest;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
@@ -32,6 +34,8 @@ public class MainActivity extends Activity {
 
     private static final int FILE_CHOOSER_REQUEST = 1001;
     private static final int AUDIO_PERM_REQUEST = 1002;
+    private static final int MIC_PERM_REQUEST = 1003;
+    private PermissionRequest pendingMicRequest;
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
@@ -94,7 +98,24 @@ public class MainActivity extends Activity {
             }
         });
 
-        webView.setWebChromeClient(new WebChromeClient() {            @Override
+        webView.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public void onPermissionRequest(PermissionRequest request) {
+                boolean wantMic = false;
+                try {
+                    for (String r : request.getResources()) {
+                        if (PermissionRequest.RESOURCE_AUDIO_CAPTURE.equals(r)) { wantMic = true; break; }
+                    }
+                } catch (Exception ignored) {}
+                if (!wantMic) { try { request.deny(); } catch (Exception ignored) {} return; }
+                if (checkSelfPermission(android.Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+                    try { request.grant(new String[]{PermissionRequest.RESOURCE_AUDIO_CAPTURE}); } catch (Exception ignored) {}
+                } else {
+                    pendingMicRequest = request;
+                    try { requestPermissions(new String[]{android.Manifest.permission.RECORD_AUDIO}, MIC_PERM_REQUEST); } catch (Exception ignored) {}
+                }
+            }
+            @Override
             public boolean onShowFileChooser(WebView view, ValueCallback<Uri[]> filePathCallback,
                                              FileChooserParams fileChooserParams) {
                 if (fileChooserCallback != null) fileChooserCallback.onReceiveValue(null);
@@ -121,6 +142,10 @@ public class MainActivity extends Activity {
             @JavascriptInterface
             public void downloadQuiet(String url, String filename) {
                 runOnUiThread(() -> enqueueDownload(url, filename, true));
+            }
+            @JavascriptInterface
+            public void saveAudio(String base64, String filename) {
+                runOnUiThread(() -> saveAudioFile(base64, filename));
             }
         }, "AndroidDL");
 
@@ -201,6 +226,17 @@ public class MainActivity extends Activity {
             boolean ok = grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED;
             webView.evaluateJavascript("window.__onDevicePerm&&window.__onDevicePerm(" + ok + ")", null);
         }
+        if (requestCode == MIC_PERM_REQUEST) {
+            boolean ok = grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED;
+            PermissionRequest req = pendingMicRequest;
+            pendingMicRequest = null;
+            if (req != null) {
+                try {
+                    if (ok) req.grant(new String[]{PermissionRequest.RESOURCE_AUDIO_CAPTURE});
+                    else req.deny();
+                } catch (Exception ignored) {}
+            }
+        }
     }
 
     private String queryDeviceSongs() {
@@ -238,6 +274,33 @@ public class MainActivity extends Activity {
             return "ERROR";
         }
         return arr.toString();
+    }
+
+    private void saveAudioFile(String base64, String filename) {
+        try {
+            byte[] data = android.util.Base64.decode(base64, android.util.Base64.DEFAULT);
+            if (Build.VERSION.SDK_INT >= 29) {
+                ContentValues cv = new ContentValues();
+                cv.put(MediaStore.Audio.Media.DISPLAY_NAME, filename);
+                cv.put(MediaStore.Audio.Media.MIME_TYPE, "audio/webm");
+                cv.put(MediaStore.Audio.Media.RELATIVE_PATH, Environment.DIRECTORY_MUSIC + "/Thom Songs");
+                Uri uri = getContentResolver().insert(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, cv);
+                if (uri == null) throw new Exception("media");
+                try (java.io.OutputStream os = getContentResolver().openOutputStream(uri)) {
+                    if (os == null) throw new Exception("stream");
+                    os.write(data);
+                }
+            } else {
+                java.io.File dir = new java.io.File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC), "Thom Songs");
+                if (!dir.exists()) dir.mkdirs();
+                try (java.io.FileOutputStream fos = new java.io.FileOutputStream(new java.io.File(dir, filename))) {
+                    fos.write(data);
+                }
+            }
+            Toast.makeText(this, "Áudio salvo — encaminhe no WhatsApp 🎤", Toast.LENGTH_LONG).show();
+        } catch (Exception e) {
+            Toast.makeText(this, "Falha ao salvar áudio", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void enqueueDownload(String url, String filename) {

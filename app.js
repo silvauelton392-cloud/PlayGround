@@ -907,11 +907,24 @@ function renderChat() {
   box.appendChild(day);
   chat.msgs.slice(-50).forEach((m) => {
     const d = document.createElement("div");
+    if (m.audioId) {
+      d.className = "bubble mine";
+      const b = audioBlobs[m.audioId];
+      if (b) {
+        if (!audioURLs[m.audioId]) { try { audioURLs[m.audioId] = URL.createObjectURL(b); } catch {} }
+        d.innerHTML = `<audio controls preload="metadata" src="${audioURLs[m.audioId] || ""}"></audio><small>🎤 ${m.dur || 0}s</small><button class="mini-btn" data-resend="${m.audioId}">⤓ salvar / enviar</button>`;
+      } else {
+        d.innerHTML = `🎤 áudio expirado (sessão anterior)<small>${esc(m.time || "")}</small>`;
+      }
+      box.appendChild(d);
+      return;
+    }
     d.className = "bubble " + (m.mine ? "mine" : "theirs");
     d.innerHTML = `${esc(m.text)}<small>${esc(m.time || "")}</small>`;
     box.appendChild(d);
   });
-  $("#chat-status").textContent = waNumber() ? "online · envia p/ WhatsApp" : "online";
+  box.querySelectorAll("[data-resend]").forEach((btn) => { btn.onclick = () => resendAudio(btn.dataset.resend); });
+  if (!ownerMode) $("#chat-status").textContent = waNumber() ? "online · envia p/ WhatsApp" : "online";
   box.scrollTop = box.scrollHeight;
 }
 function openChat() { renderChat(); $("#chat").classList.add("open"); setTimeout(() => { try { $("#chat-text").focus(); } catch {} }, 250); }
@@ -942,6 +955,113 @@ $("#btn-chat-current").onclick = () => {
   if (t) $("#chat-text").value = `${t.artist} - ${t.title}`;
   try { $("#chat-text").focus(); } catch {}
 };
+
+// ---------- chat: modo dono + envio de áudio (só o dono envia) ----------
+let ownerMode = false;
+const audioBlobs = {}, audioURLs = {};
+function ownerPin() { try { return localStorage.getItem("thom_owner_pin") || ""; } catch { return ""; } }
+function setOwnerPin(p) { try { localStorage.setItem("thom_owner_pin", p); } catch {} }
+function refreshOwnerUI() {
+  $("#btn-chat-mic").hidden = !ownerMode;
+  if (ownerMode) $("#chat-status").textContent = "modo dono 👑 · só você envia áudio";
+  renderChat();
+}
+function ownerToggle() {
+  if (ownerMode) { ownerMode = false; refreshOwnerUI(); toast("Modo dono off"); return; }
+  const has = ownerPin();
+  const v = prompt(has ? "PIN do dono:" : "Crie seu PIN do dono (4+ dígitos):");
+  if (v == null) return;
+  if (!has) {
+    if (v.replace(/\D/g, "").length < 4) return toast("PIN muito curto ⚠️");
+    setOwnerPin(v); ownerMode = true;
+  } else if (v === has) ownerMode = true;
+  else return toast("PIN incorreto 🚫");
+  refreshOwnerUI(); toast("Modo dono ativo 👑 — só você envia áudio");
+}
+(() => {
+  const title = document.querySelector(".chat-title");
+  if (!title) return;
+  let t = null;
+  const start = () => { t = setTimeout(ownerToggle, 700); };
+  const cancel = () => clearTimeout(t);
+  title.addEventListener("touchstart", start, { passive: true });
+  title.addEventListener("touchend", cancel);
+  title.addEventListener("touchcancel", cancel);
+  title.addEventListener("mousedown", start);
+  title.addEventListener("mouseup", cancel);
+  title.addEventListener("mouseleave", cancel);
+  try { title.style.userSelect = "none"; title.style.webkitUserSelect = "none"; } catch {}
+})();
+let rec = null, recChunks = [], recStart = 0, recStream = null;
+async function toggleRec() {
+  if (rec) return stopRec();
+  if (!ownerMode) return toast("Só o dono envia áudio 👑");
+  try {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return toast("Gravação não suportada aqui ⚠️");
+    recStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  } catch { return toast("Permita o microfone para gravar 🎤"); }
+  try {
+    recChunks = [];
+    rec = new MediaRecorder(recStream);
+  } catch { try { recStream.getTracks().forEach((x) => x.stop()); } catch {} recStream = null; return toast("Gravação não suportada ⚠️"); }
+  rec.ondataavailable = (e) => { if (e.data && e.data.size) recChunks.push(e.data); };
+  rec.onstop = () => {
+    const dur = Math.max(1, Math.round((Date.now() - recStart) / 1000));
+    const blob = new Blob(recChunks, { type: (rec && rec.mimeType) || "audio/webm" });
+    try { recStream.getTracks().forEach((x) => x.stop()); } catch {}
+    recStream = null; rec = null;
+    $("#btn-chat-mic").classList.remove("rec");
+    handleRecordedAudio(blob, dur);
+  };
+  recStart = Date.now();
+  try { rec.start(); } catch { return toast("Falha ao gravar ⚠️"); }
+  $("#btn-chat-mic").classList.add("rec");
+  toast("🔴 Gravando… toque de novo para parar");
+}
+function stopRec() { try { if (rec) rec.stop(); } catch { rec = null; $("#btn-chat-mic").classList.remove("rec"); } }
+function audioFileName() { return `thomsongs-audio-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-")}.webm`; }
+async function shareOrSaveAudio(blob, fname) {
+  try {
+    const file = new File([blob], fname, { type: blob.type || "audio/webm" });
+    if (navigator.canShare && navigator.share && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file], title: "Áudio Thom Songs" });
+      chatPush("📤 Áudio compartilhado!", false);
+      return true;
+    }
+  } catch {}
+  const rd = new FileReader();
+  await new Promise((res) => { rd.onload = res; rd.readAsDataURL(blob); });
+  const b64 = String(rd.result).split(",")[1];
+  if (window.AndroidDL && window.AndroidDL.saveAudio) window.AndroidDL.saveAudio(b64, fname);
+  else {
+    const u = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = u; a.download = fname;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(u), 15000);
+  }
+  toast("Áudio salvo — encaminhe no WhatsApp 🎤");
+  return true;
+}
+async function handleRecordedAudio(blob, dur) {
+  if (!blob || !blob.size) return toast("Áudio vazio ⚠️");
+  const id = "a" + Date.now();
+  audioBlobs[id] = blob;
+  pushAudioMsg(id, dur);
+  await shareOrSaveAudio(blob, audioFileName());
+}
+function pushAudioMsg(id, dur) {
+  const now = new Date();
+  chat.msgs.push({ audioId: id, dur, mine: true, time: `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}` });
+  chat.msgs = chat.msgs.slice(-100);
+  chatStore.save(chat); renderChat();
+}
+async function resendAudio(id) {
+  const blob = audioBlobs[id];
+  if (!blob) return toast("Áudio expirado ⚠️");
+  await shareOrSaveAudio(blob, audioFileName());
+}
+$("#btn-chat-mic").onclick = toggleRec;
 
 // ---------- atualização automática (APK) ----------
 const UPDATE_BASE = "https://raw.githubusercontent.com/silvauelton392-cloud/PlayGround/main/";
