@@ -907,6 +907,18 @@ async function checkFreshUpdate() {
 }
 $("#upd-ok").onclick = () => ($("#modal-update").hidden = true);
 
+// ---------- boas-vindas (primeira abertura) ----------
+function checkWelcome() {
+  let seen = false;
+  try { seen = localStorage.getItem("thomseen-welcome") === "1"; } catch {}
+  if (seen) return;
+  $("#modal-welcome").hidden = false;
+}
+$("#welcome-ok").onclick = () => {
+  try { localStorage.setItem("thomseen-welcome", "1"); } catch {}
+  $("#modal-welcome").hidden = true;
+};
+
 // ---------- init ----------
 greeting();
 buildOrder(0, false);
@@ -930,4 +942,4 @@ setTimeout(() => checkFreshUpdate(), 2500);
   hidePermCard();
   importDevice(true);
 })();
-setTimeout(() => toast("Bem-vindo ao Thom Songs 🎧"), 600);
+setTimeout(() => checkWelcome(), 900);

@@ -248,3 +248,11 @@ input[type=range]{accent-color:var(--acc1)}
 .modal-list{display:flex;flex-direction:column;gap:8px;margin:12px 0;max-height:240px;overflow-y:auto}
 .modal-list button{background:rgba(255,255,255,.06);border:1px solid var(--border);color:#fff;border-radius:12px;padding:13px;cursor:pointer;text-align:left;font-size:14px}
 .modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}
+.modal-card.welcome{text-align:center}
+.welcome-logo{width:84px;height:84px;border-radius:50%;background:var(--grad);display:grid;place-items:center;font-size:40px;color:#fff;margin:0 auto 12px;box-shadow:0 12px 32px rgba(139,92,246,.55)}
+.modal-card.welcome h3{font-size:23px;line-height:1.3}
+.modal-card.welcome p{color:var(--mut);font-size:14px;margin:4px 0 12px}
+.welcome-feats{display:flex;flex-direction:column;gap:8px;text-align:left;margin-bottom:12px}
+.welcome-feats div{background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:12px;padding:11px 13px;font-size:13.5px;color:#fff}
+.modal-card.welcome .modal-btns{justify-content:stretch}
+.modal-card.welcome .primary-btn{flex:1;padding:15px;font-size:15px}
