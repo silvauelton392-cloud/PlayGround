@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Thom Vendas — Painel de Vendas</title>
+<meta name="description" content="Painel de vendas completo: KPIs, gráficos, pedidos, metas e nova venda." />
+<link rel="stylesheet" href="styles.css" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%236c5ce7'/><text x='50' y='68' font-size='55' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'>T</text></svg>" />
+</head>
+<body>
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-logo">T</div>
+      <div>
+        <strong>Thom Vendas</strong>
+        <small>Painel de vendas</small>
+      </div>
+    </div>
+    <nav class="nav">
+      <button class="nav-item active" data-view="dashboard">📊 <span>Visão geral</span></button>
+      <button class="nav-item" data-view="pedidos">🧾 <span>Pedidos</span></button>
+      <button class="nav-item" data-view="produtos">📦 <span>Produtos</span></button>
+      <button class="nav-item" data-view="metas">🎯 <span>Metas</span></button>
+    </nav>
+    <div class="sidebar-card">
+      <strong>Meta de outubro</strong>
+      <p id="sidebarGoalText">R$ 0 de R$ 120.000</p>
+      <div class="progress"><div class="progress-bar" id="sidebarGoalBar" style="width:0%"></div></div>
+      <small id="sidebarGoalPct">0% alcançado</small>
+    </div>
+    <button class="btn primary block" id="btnNovaVendaSide">+ Nova venda</button>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <header class="topbar">
+      <button class="icon-btn menu-btn" id="menuBtn" aria-label="Abrir menu">☰</button>
+      <div class="search">
+        <span>🔍</span>
+        <input id="searchInput" type="search" placeholder="Buscar pedido, cliente ou produto…" autocomplete="off" />
+      </div>
+      <div class="topbar-actions">
+        <select id="periodSelect" class="select" title="Período">
+          <option value="7">Últimos 7 dias</option>
+          <option value="30" selected>Últimos 30 dias</option>
+          <option value="90">Últimos 90 dias</option>
+          <option value="0">Todo período</option>
+        </select>
+        <select id="categorySelect" class="select" title="Categoria">
+          <option value="todas">Todas categorias</option>
+          <option value="Eletrônicos">Eletrônicos</option>
+          <option value="Moda">Moda</option>
+          <option value="Casa">Casa</option>
+          <option value="Beleza">Beleza</option>
+          <option value="Esporte">Esporte</option>
+        </select>
+        <button class="btn ghost" id="btnExport">⬇ Exportar</button>
+        <button class="icon-btn" id="themeBtn" title="Alternar tema">🌙</button>
+        <button class="btn primary" id="btnNovaVenda">+ Nova venda</button>
+      </div>
+    </header>
+
+    <!-- VIEWS -->
+    <main id="view-dashboard" class="view active">
+      <section class="kpis">
+        <div class="kpi">
+          <small>Receita total</small>
+          <strong id="kpiReceita">R$ 0</strong>
+          <span class="delta up" id="kpiReceitaDelta">▲ 0%</span>
+          <em>vs. período anterior</em>
+        </div>
+        <div class="kpi">
+          <small>Pedidos</small>
+          <strong id="kpiPedidos">0</strong>
+          <span class="delta up" id="kpiPedidosDelta">▲ 0%</span>
+          <em>pedidos no período</em>
+        </div>
+        <div class="kpi">
+          <small>Ticket médio</small>
+          <strong id="kpiTicket">R$ 0</strong>
+          <span class="delta neutral" id="kpiTicketDelta">— 0%</span>
+          <em>por pedido</em>
+        </div>
+        <div class="kpi">
+          <small>Taxa de conversão</small>
+          <strong id="kpiConversao">0%</strong>
+          <span class="delta up">▲ visitas → vendas</span>
+          <em id="kpiDevolucoes">0 devoluções</em>
+        </div>
+      </section>
+
+      <section class="grid-2">
+        <div class="card chart-card">
+          <div class="card-head">
+            <div><h3>Vendas por dia</h3><p>Receita diária no período selecionado</p></div>
+            <div class="legend"><span class="dot"></span> Receita <button class="link" id="toggleChartType">ver como barras</button></div>
+          </div>
+          <canvas id="salesChart" height="220"></canvas>
+        </div>
+        <div class="card">
+          <div class="card-head"><div><h3>Vendas por categoria</h3><p>Participação na receita</p></div></div>
+          <canvas id="catChart" height="220"></canvas>
+          <div id="catLegend" class="cat-legend"></div>
+        </div>
+      </section>
+
+      <section class="grid-2">
+        <div class="card">
+          <div class="card-head">
+            <div><h3>Top produtos</h3><p>Por receita no período</p></div>
+          </div>
+          <div id="topProducts" class="top-products"></div>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <div><h3>Pedidos recentes</h3><p id="recentCount"></p></div>
+            <button class="link" data-goto="pedidos">Ver todos →</button>
+          </div>
+          <div class="table-wrap">
+            <table class="table" id="recentTable">
+              <thead><tr><th>Pedido</th><th>Cliente</th><th>Valor</th><th>Status</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <main id="view-pedidos" class="view">
+      <div class="card">
+        <div class="card-head">
+          <div><h3>Todos os pedidos</h3><p id="allCount"></p></div>
+          <select id="statusSelect" class="select">
+            <option value="todos">Todos os status</option>
+            <option value="Pago">Pago</option>
+            <option value="Pendente">Pendente</option>
+            <option value="Enviado">Enviado</option>
+            <option value="Cancelado">Cancelado</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table class="table" id="allTable">
+            <thead><tr><th data-sort="id">Pedido ⇅</th><th data-sort="cliente">Cliente ⇅</th><th>Produto</th><th>Categoria</th><th data-sort="data">Data ⇅</th><th data-sort="valor">Valor ⇅</th><th>Status</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+
+    <main id="view-produtos" class="view">
+      <div class="card">
+        <div class="card-head"><div><h3>Produtos</h3><p>Desempenho agregado</p></div></div>
+        <div id="productGrid" class="product-grid"></div>
+      </div>
+    </main>
+
+    <main id="view-metas" class="view">
+      <div class="grid-2">
+        <div class="card">
+          <h3>Meta mensal</h3>
+          <p class="muted">Defina e acompanhe a meta de receita do mês.</p>
+          <div class="goal-big"><strong id="goalValue">R$ 0</strong><span id="goalTargetLabel">de R$ 120.000</span></div>
+          <div class="progress big"><div class="progress-bar" id="goalBar"></div></div>
+          <p class="muted" id="goalPct">0% alcançado</p>
+          <label class="field"><span>Nova meta (R$)</span><input id="goalInput" type="number" min="1000" step="500" value="120000" /></label>
+          <button class="btn primary" id="btnSaveGoal">Salvar meta</button>
+        </div>
+        <div class="card">
+          <h3>Resumo por status</h3>
+          <div id="statusSummary"></div>
+          <h3 style="margin-top:20px">Pagamento</h3>
+          <div id="paySummary"></div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="footer">Thom Vendas • dados de demonstração salvos no navegador (localStorage) • <button class="link" id="btnReset">restaurar dados</button></footer>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-backdrop" id="modalBackdrop" hidden>
+  <form class="modal" id="saleForm">
+    <h3>Nova venda</h3>
+    <p class="muted">Registre um pedido manualmente.</p>
+    <div class="form-grid">
+      <label class="field"><span>Cliente *</span><input name="cliente" required placeholder="Ex.: Maria Silva" /></label>
+      <label class="field"><span>Produto *</span><input name="produto" required placeholder="Ex.: Fone Bluetooth X2" list="productList" /><datalist id="productList"></datalist></label>
+      <label class="field"><span>Categoria *</span>
+        <select name="categoria" required><option>Eletrônicos</option><option>Moda</option><option>Casa</option><option>Beleza</option><option>Esporte</option></select>
+      </label>
+      <label class="field"><span>Valor (R$) *</span><input name="valor" type="number" min="1" step="0.01" required placeholder="299.90" /></label>
+      <label class="field"><span>Quantidade</span><input name="qtd" type="number" min="1" value="1" /></label>
+      <label class="field"><span>Pagamento</span>
+        <select name="pagamento"><option>Pix</option><option>Cartão</option><option>Boleto</option></select>
+      </label>
+      <label class="field"><span>Status</span>
+        <select name="status"><option>Pago</option><option>Pendente</option><option>Enviado</option></select>
+      </label>
+      <label class="field"><span>Data</span><input name="data" type="date" id="saleDate" /></label>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn ghost" id="btnCloseModal">Cancelar</button>
+      <button type="submit" class="btn primary">Salvar venda</button>
+    </div>
+  </form>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script src="app.js"></script>
+</body>
+</html>
