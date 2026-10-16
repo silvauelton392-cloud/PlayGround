@@ -686,11 +686,18 @@ function renderNxHead() {
     box.appendChild(b);
   });
 }
+// Catálogo embutido (catalog.js) como fallback se o fetch falhar no aparelho
+async function catOrEmbedded(key, file) {
+  try {
+    const r = await fetch(file);
+    if (r.ok) return await r.json();
+  } catch {}
+  if (window.__CATALOG && window.__CATALOG[key]) return window.__CATALOG[key];
+  throw new Error("cat");
+}
 async function loadNX() {
   try {
-    const r = await fetch("./nxzero.json");
-    if (!r.ok) throw new Error("nx");
-    NX = await r.json();
+    NX = await catOrEmbedded("nx", "./nxzero.json");
     const cur = order[pos];
     NX.tracks.forEach((nt) => {
       if (tracks.some((t) => t.src === nt.preview)) return;
@@ -729,9 +736,7 @@ function renderCbHead() {
 }
 async function loadCB() {
   try {
-    const r = await fetch("./cbjr.json");
-    if (!r.ok) throw new Error("cb");
-    CB = await r.json();
+    CB = await catOrEmbedded("cb", "./cbjr.json");
     const cur = order[pos];
     CB.tracks.forEach((ct) => {
       if (tracks.some((t) => t.src === ct.preview)) return;
@@ -770,9 +775,7 @@ function renderPtHead() {
 }
 async function loadPT() {
   try {
-    const r = await fetch("./pitty.json");
-    if (!r.ok) throw new Error("pt");
-    PT = await r.json();
+    PT = await catOrEmbedded("pitty", "./pitty.json");
     const cur = order[pos];
     PT.tracks.forEach((pt) => {
       if (tracks.some((t) => t.src === pt.preview)) return;
@@ -811,9 +814,7 @@ function renderNvHead() {
 }
 async function loadNV() {
   try {
-    const r = await fetch("./nirvana.json");
-    if (!r.ok) throw new Error("nv");
-    NV = await r.json();
+    NV = await catOrEmbedded("nv", "./nirvana.json");
     const cur = order[pos];
     NV.tracks.forEach((nv) => {
       if (tracks.some((t) => t.src === nv.preview)) return;
