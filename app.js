@@ -21,9 +21,9 @@ const store = {
 };
 const saved = store.load();
 
-let NX = null, nxAlbum = "", CB = null, cbAlbum = "", PT = null, ptAlbum = "", NV = null, nvAlbum = "";
-const isStream = (t) => t && (t.nx || t.cb || t.pitty || t.nv);
-const letraLink = (t) => (t.cb ? "https://www.letras.mus.br/charlie-brown-jr/" : t.pitty ? "https://www.letras.mus.br/pitty/" : t.nv ? "https://www.letras.mus.br/nirvana/" : "https://www.letras.mus.br/nx-zero/");
+let NX = null, nxAlbum = "", CB = null, cbAlbum = "", PT = null, ptAlbum = "", NV = null, nvAlbum = "", VM = null, vmAlbum = "";
+const isStream = (t) => t && (t.nx || t.cb || t.pitty || t.nv || t.vm);
+const letraLink = (t) => (t.cb ? "https://www.letras.mus.br/charlie-brown-jr/" : t.pitty ? "https://www.letras.mus.br/pitty/" : t.nv ? "https://www.letras.mus.br/nirvana/" : t.vm ? "https://www.letras.mus.br/vmz/" : "https://www.letras.mus.br/nx-zero/");
 let order = tracks.map((_, i) => i);
 let pos = 0;
 let view = "inicio", searchQ = "", sortBy = "padrao", activePlaylist = null;
@@ -147,6 +147,10 @@ function filteredTracks() {
     list = list.filter((t) => t.nv);
     if (nvAlbum) list = list.filter((t) => t.album === nvAlbum);
   }
+  if (view === "vmz") {
+    list = list.filter((t) => t.vm);
+    if (vmAlbum) list = list.filter((t) => t.album === vmAlbum);
+  }
   if (view === "aparelho") list = list.filter((t) => t.device);
   if (activePlaylist && playlists[activePlaylist]) {
     list = playlists[activePlaylist].filter((i) => tracks[i]).map((i) => ({ ...tracks[i], idx: i }));
@@ -242,8 +246,8 @@ function renderTracks() {
   list.slice(0, view === "nxzero" ? 500 : 100).forEach((t, i) => box.appendChild(trackRow(t, i + 1)));
   $("#empty-msg").hidden = list.length > 0;
   $("#track-count").textContent = `· ${list.length}`;
-  const titles = { inicio: "📀 Em destaque", biblioteca: "🎵 Todas as músicas", curtidas: "❤️ Suas curtidas", historico: "🕘 Tocadas recentemente", nxzero: "🎸 NX Zero", cbjr: "🎸 Charlie Brown Jr", pitty: "🎸 Pitty", nirvana: "🎸 Nirvana", aparelho: "📱 Neste aparelho" };
-  const selAlbum = view === "nxzero" ? nxAlbum : view === "cbjr" ? cbAlbum : view === "pitty" ? ptAlbum : view === "nirvana" ? nvAlbum : "";
+  const titles = { inicio: "📀 Em destaque", biblioteca: "🎵 Todas as músicas", curtidas: "❤️ Suas curtidas", historico: "🕘 Tocadas recentemente", nxzero: "🎸 NX Zero", cbjr: "🎸 Charlie Brown Jr", pitty: "🎸 Pitty", nirvana: "🎸 Nirvana", vmz: "🎤 VMZ", aparelho: "📱 Neste aparelho" };
+  const selAlbum = view === "nxzero" ? nxAlbum : view === "cbjr" ? cbAlbum : view === "pitty" ? ptAlbum : view === "nirvana" ? nvAlbum : view === "vmz" ? vmAlbum : "";
   $("#view-title").textContent = activePlaylist ? `📁 ${activePlaylist}` : (selAlbum ? `🎸 ${selAlbum}` : (titles[view] || titles.inicio));
   $("#nx-head").hidden = view !== "nxzero";
   if (view === "nxzero") renderNxHead();
@@ -253,6 +257,8 @@ function renderTracks() {
   if (view === "pitty") renderPtHead();
   $("#nv-head").hidden = view !== "nirvana";
   if (view === "nirvana") renderNvHead();
+  $("#vm-head").hidden = view !== "vmz";
+  if (view === "vmz") renderVmHead();
   $("#dev-head").hidden = view !== "aparelho";
   if (view === "aparelho") updateDevHead();
 }
@@ -833,6 +839,46 @@ $("#nv-banner").onclick = () => {
 };
 $("#btn-dl-nv").onclick = () => downloadList(filteredTracks());
 
+// ---------- VMZ ----------
+function renderVmHead() {
+  if (!VM) return;
+  if (VM.albums[0] && VM.albums[0].art) $("#vm-photo").src = VM.albums[0].art;
+  $("#vm-stats").textContent = `${VM.total} faixa(s) · ${VM.albums.length} álbum(ns)`;
+  const box = $("#vm-albums"); box.innerHTML = "";
+  const all = document.createElement("button");
+  all.textContent = `Tudo (${VM.total})`;
+  all.className = vmAlbum ? "" : "active";
+  all.onclick = () => { vmAlbum = ""; renderAll(); };
+  box.appendChild(all);
+  VM.albums.forEach((a) => {
+    const b = document.createElement("button");
+    b.textContent = `${a.year} · ${a.name} (${a.count})`;
+    b.className = vmAlbum === a.name ? "active" : "";
+    b.onclick = () => { vmAlbum = a.name; renderAll(); $("#main").scrollTo({ top: 0 }); };
+    box.appendChild(b);
+  });
+}
+async function loadVM() {
+  try {
+    VM = await catOrEmbedded("vm", "./vmz.json");
+    const cur = order[pos];
+    VM.tracks.forEach((vm) => {
+      if (tracks.some((t) => t.src === vm.preview)) return;
+      tracks.push({ title: vm.title, artist: vm.artist, album: vm.album, genre: "Hip-Hop/Rap", hue: (vm.id * 19) % 360, src: vm.preview, vm: true, art: vm.art, year: vm.year });
+    });
+    if (shuffle && cur !== undefined && tracks[cur]) buildOrder(cur);
+    else { const have = new Set(order); tracks.forEach((_, i) => { if (!have.has(i)) { order.push(i); have.add(i); } }); }
+    $("#vm-banner-sub").textContent = `${VM.total} faixa(s)`;
+    renderAll();
+  } catch { const el = $("#vm-banner-sub"); if (el) el.textContent = "Falha ao carregar — toque para tentar"; }
+}
+$("#vm-banner").onclick = () => {
+  if (!VM) { toast("Tentando carregar… ⏳"); loadVM(); return; }
+  view = "vmz"; vmAlbum = ""; activePlaylist = null;
+  syncNav(); renderAll(); $("#main").scrollTo({ top: 0 });
+};
+$("#btn-dl-vm").onclick = () => downloadList(filteredTracks());
+
 // ---------- músicas do aparelho (Android MediaStore) ----------
 function hashStr(s) { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return Math.abs(h); }
 function deviceCount() { return tracks.filter((t) => t.device).length; }
@@ -1346,6 +1392,7 @@ loadNX();
 loadCB();
 loadPT();
 loadNV();
+loadVM();
 setTimeout(() => checkUpdate(false), 9000);
 setTimeout(() => { try { liveConnect(); } catch {} }, 12000);
 setTimeout(() => { if (!updateInfo) checkUpdate(false); }, 60000);

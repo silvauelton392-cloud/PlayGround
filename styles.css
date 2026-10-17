@@ -132,6 +132,7 @@ body{margin:0;font-family:var(--font);background:#04050c;color:var(--txt);overfl
 .nx-banner.cb{background:linear-gradient(135deg,rgba(52,211,153,.3),rgba(250,204,21,.16))}
 .nx-banner.pt{background:linear-gradient(135deg,rgba(244,63,94,.32),rgba(139,92,246,.2))}
 .nx-banner.nv{background:linear-gradient(135deg,rgba(250,204,21,.28),rgba(59,130,246,.22))}
+.nx-banner.vmz{background:linear-gradient(135deg,rgba(168,85,247,.35),rgba(236,72,153,.22))}
 .nx-logo{width:48px;height:48px;flex:none;border-radius:14px;background:linear-gradient(135deg,#111,#444);border:2px solid #fff;display:grid;place-items:center;font-weight:800;font-size:17px;color:#fff;letter-spacing:1px}
 .nx-txt{flex:1;min-width:0}.nx-txt strong{display:block;font-size:16px;letter-spacing:2px}
 .nx-txt small{color:var(--mut);font-size:12px}
@@ -142,7 +143,7 @@ body{margin:0;font-family:var(--font);background:#04050c;color:var(--txt);overfl
 .nx-id strong{display:block;font-size:19px;letter-spacing:2px}
 .nx-id span{display:block;font-size:12.5px;color:var(--mut);margin-top:2px}
 .previa-pill{display:inline-block!important;margin-top:7px!important;font-size:10px!important;font-weight:800;letter-spacing:1px;color:#06281c!important;background:#34d399;border-radius:20px;padding:4px 11px!important}
-#nx-albums,#cb-albums,#pitty-albums,#nv-albums{max-height:132px;overflow-y:auto}
+#nx-albums,#cb-albums,#pitty-albums,#nv-albums,#vm-albums{max-height:132px;overflow-y:auto}
 .has-img{padding:0!important;overflow:hidden}
 .has-img img,.m-cover img,.np-cover img,.nx-id img{width:100%;height:100%;object-fit:cover;display:block}
 .mini-art.has-img,.m-cover{padding:0}
